@@ -1,317 +1,207 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>KittyFeeder Elite</title>
-<style>
-    :root {
-        --primary: #22c55e;
-        --primary-glow: rgba(34, 197, 94, 0.4);
-        --secondary: #3b82f6;
-        --accent: #8b5cf6;
-        --bg: #0f172a;
-        --card-bg: rgba(30, 41, 59, 0.7);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KittyFeeder Elite</title>
+    <style>
+        :root {
+            --primary: #22c55e;
+            --secondary: #3b82f6;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.75);
+        }
 
-    body {
-        background: var(--bg);
-        background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
-        color: white;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-    }
+        body {
+            background: var(--bg);
+            background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            text-align: center;
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+        }
 
-    /* Fondo decorativo con el logo */
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: url("logo.png");
-        background-size: 80%;
-        background-repeat: no-repeat;
-        background-position: center;
-        opacity: 0.05;
-        z-index: -1;
-    }
+        /* Contenedor de fotos de mascotas */
+        .pet-header {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 25px 0 10px 0;
+        }
 
-    .header {
-        width: 90%;
-        max-width: 450px;
-        margin: 25px auto;
-        padding: 25px;
-        background: var(--card-bg);
-        backdrop-filter: blur(10px);
-        border-radius: 24px;
-        border: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
+        .pet-profile {
+            text-align: center;
+        }
 
-    .header h1 {
-        font-size: 38px;
-        margin: 0;
-        background: linear-gradient(to right, #4ade80, #22c55e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        letter-spacing: -1px;
-    }
+        .pet-photo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+            background: #1e293b;
+        }
 
-    .reloj {
-        font-size: 18px;
-        margin-top: 15px;
-        color: #94a3b8;
-        letter-spacing: 1px;
-    }
+        .pet-photo.fiona {
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
 
-    .section {
-        width: 90%;
-        max-width: 450px;
-        margin: 20px auto;
-        padding: 30px 20px;
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        border-radius: 24px;
-        border: 1px solid rgba(255,255,255,0.05);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
+        .pet-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    h2 {
-        font-size: 22px;
-        margin-top: 0;
-        color: #f1f5f9;
-        font-weight: 600;
-    }
+        .pet-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
 
-    /* Botones Estilo Moderno */
-    button {
-        font-size: 18px;
-        width: 100%;
-        padding: 18px;
-        background: linear-gradient(135deg, var(--primary), #16a34a);
-        border: none;
-        border-radius: 16px;
-        color: white;
-        font-weight: bold;
-        box-shadow: 0 8px 15px var(--primary-glow);
-        transition: all 0.2s;
-        margin-top: 15px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+        .header {
+            width: 90%; max-width: 450px;
+            margin: 10px auto 20px auto;
+            padding: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
 
-    button:active {
-        transform: scale(0.96);
-        box-shadow: 0 4px 8px var(--primary-glow);
-    }
+        .section {
+            width: 90%; max-width: 450px;
+            margin: 15px auto;
+            padding: 25px 20px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+        }
 
-    .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3); }
-    .btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 8px 15px rgba(139, 92, 246, 0.3); }
+        button {
+            font-size: 18px; width: 100%; padding: 18px;
+            background: linear-gradient(135deg, var(--primary), #16a34a);
+            border: none; border-radius: 16px;
+            color: white; font-weight: bold;
+            margin-top: 15px; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        }
 
-    select {
-        font-size: 17px;
-        padding: 14px;
-        width: 100%;
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.1);
-        background: #0f172a;
-        color: #f1f5f9;
-        margin: 10px 0;
-        appearance: none;
-    }
+        .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3); }
 
-    .time-grid {
-        display: flex;
-        gap: 12px;
-        margin-top: 10px;
-    }
+        select {
+            font-size: 17px; padding: 12px; width: 100%;
+            border-radius: 12px; background: #0f172a; color: white; border: 1px solid #334155;
+            margin: 10px 0;
+        }
 
-    .time-item { flex: 1; }
-    .time-item p { font-size: 12px; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
+        .time-grid { display: flex; gap: 10px; margin-top: 10px; }
+        .time-item { flex: 1; }
+        .time-item p { font-size: 12px; color: #94a3b8; margin: 0 0 5px 0; }
 
-    #infoProgramacion {
-        margin-top: 20px;
-        padding: 15px;
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        border-radius: 14px;
-        color: #4ade80;
-        font-weight: 500;
-    }
-
-    .resultado {
-        font-size: 20px;
-        color: #4ade80;
-        margin: 15px 0;
-        padding-top: 15px;
-        border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    /* Acordeón Elegante */
-    .accordion {
-        background: rgba(255,255,255,0.05);
-        padding: 15px;
-        margin-top: 10px;
-        font-size: 16px;
-        text-align: left;
-        box-shadow: none;
-    }
-
-    .panel {
-        background: rgba(0,0,0,0.2);
-        border-radius: 0 0 16px 16px;
-        padding: 0 15px;
-    }
-
-    footer {
-        margin-top: 40px;
-        padding: 40px 20px;
-        background: #020617;
-        color: #475569;
-        font-size: 13px;
-        border-top: 1px solid rgba(34, 197, 94, 0.2);
-    }
-</style>
+        #reloj { font-size: 20px; color: #4ade80; font-weight: bold; margin-top: 5px; }
+    </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>KittyFeeder</h1>
-    <div class="reloj" id="reloj">--:--:--</div>
-</div>
-
-<div class="section">
-    <h2>Alimentación</h2>
-    <select id="modoAlimentacion" onchange="cambiarModo()">
-        <option value="manual">Modo Manual</option>
-        <option value="inteligente">Modo Inteligente</option>
-    </select>
-
-    <div id="contenedorManual">
-        <button 
-            onmousedown="accionManual(1)" 
-            onmouseup="accionManual(0)" 
-            ontouchstart="accionManual(1)" 
-            ontouchend="accionManual(0)"
-            class="btn-blue">
-            Mantener para servir
-        </button>
+    <div class="pet-header">
+        <div class="pet-profile">
+            <div class="pet-photo">
+                <img src="kitty.png" alt="Kitty">
+            </div>
+            <div class="pet-name" style="color: #4ade80;">KITTY</div>
+        </div>
+        <div class="pet-profile">
+            <div class="pet-photo fiona">
+                <img src="fiona.png" alt="Fiona">
+            </div>
+            <div class="pet-name" style="color: #60a5fa;">FIONA</div>
+        </div>
     </div>
 
-    <div id="contenedorInteligente" style="display:none;">
-        <button onclick="accionInteligente()" class="btn-purple">
-            Ración Inteligente
-        </button>
+    <div class="header">
+        <h1 style="margin:0; font-size: 28px;">KittyFeeder Pro</h1>
+        <div id="reloj">--:--:--</div>
     </div>
-</div>
 
-<div class="section">
-    <h2>Próxima Comida</h2>
-    <div class="time-grid">
-        <div class="time-item"><p>AM</p><select id="horaAM" onchange="limpiarPM()"><option value="none">--</option><option value="0">12</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select></div>
-        <div class="time-item"><p>PM</p><select id="horaPM" onchange="limpiarAM()"><option value="none">--</option><option value="12">12</option><option value="13">1</option><option value="14">2</option><option value="15">3</option><option value="16">4</option><option value="17">5</option><option value="18">6</option><option value="19">7</option><option value="20">8</option><option value="21">9</option><option value="22">10</option><option value="23">11</option></select></div>
-        <div class="time-item"><p>Min</p><select id="min"></select></div>
+    <div class="section">
+        <h2 style="margin-top:0;">Alimentación</h2>
+        <select id="modoAlimentacion" onchange="cambiarModo()">
+            <option value="manual">Modo Manual</option>
+            <option value="inteligente">Modo Inteligente</option>
+        </select>
+        <div id="contenedorManual">
+            <button onmousedown="accionManual(1)" onmouseup="accionManual(0)" ontouchstart="accionManual(1)" ontouchend="accionManual(0)" class="btn-blue">
+                Mantener para servir
+            </button>
+        </div>
+        <div id="contenedorInteligente" style="display:none;">
+            <button onclick="accionInteligente()" style="background: #8b5cf6; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);">
+                Ración Inteligente
+            </button>
+        </div>
     </div>
-    <button onclick="guardarHorario()">Establecer Horario</button>
-    <div id="infoProgramacion">Sin programación</div>
-</div>
 
-<div class="section">
-    <h2>Perfil Mascota</h2>
-    <p style="margin:0; font-size:14px; color:#94a3b8;">Peso (kg)</p>
-    <select id="peso" onchange="calcular()">
-        <option value="1">1 kg</option><option value="2">2 kg</option><option value="3">3 kg</option><option value="4">4 kg</option><option value="5" selected>5 kg</option><option value="6">6 kg</option><option value="7">7 kg</option><option value="8">8 kg</option>
-    </select>
-    <p style="margin:10px 0 0 0; font-size:14px; color:#94a3b8;">Comidas diarias</p>
-    <select id="comidas" onchange="calcular()">
-        <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option>
-    </select>
-    <div class="resultado" id="resultado">Porción: 0 g</div>
-    <button onclick="guardarMascota()">Actualizar Perfil</button>
-</div>
-
-<footer>
-    <p>📱 SOPORTE: 311 540 5438</p>
-    <p>© 2026 SEBASTIÁN GUARÍN • ELITE EDITION</p>
-</footer>
+    <div class="section">
+        <h2 style="margin-top:0;">Programación</h2>
+        <div class="time-grid">
+            <div class="time-item"><p>AM</p><select id="horaAM" onchange="limpiarPM()"><option value="none">--</option><option value="0">12</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select></div>
+            <div class="time-item"><p>PM</p><select id="horaPM" onchange="limpiarAM()"><option value="none">--</option><option value="12">12</option><option value="13">1</option><option value="14">2</option><option value="15">3</option><option value="16">4</option><option value="17">5</option><option value="18">6</option><option value="19">7</option><option value="20">8</option><option value="21">9</option><option value="22">10</option><option value="23">11</option></select></div>
+            <div class="time-item"><p>MIN</p><select id="min"></select></div>
+        </div>
+        <button onclick="guardarHorario()">Guardar Horario</button>
+    </div>
 
 <script>
-const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
+    const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
 
-function cambiarModo() {
-    const modo = document.getElementById("modoAlimentacion").value;
-    document.getElementById("contenedorManual").style.display = (modo === "manual") ? "block" : "none";
-    document.getElementById("contenedorInteligente").style.display = (modo === "inteligente") ? "block" : "none";
-}
-
-function accionManual(valor) {
-    fetch("https://blynk.cloud/external/api/update?token="+token+"&V0="+valor);
-}
-
-function accionInteligente() {
-    fetch("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
-    alert("🚀 Ración enviada");
-}
-
-function generarMinutos(){
-    let min=document.getElementById("min");
-    for(let i=0;i<60;i++){
-        let texto=i.toString().padStart(2,'0');
-        min.add(new Option(texto,i));
+    function cambiarModo() {
+        const modo = document.getElementById("modoAlimentacion").value;
+        document.getElementById("contenedorManual").style.display = (modo === "manual") ? "block" : "none";
+        document.getElementById("contenedorInteligente").style.display = (modo === "inteligente") ? "block" : "none";
     }
-}
-generarMinutos();
 
-function calcular(){
-    let peso=parseFloat(document.getElementById("peso").value);
-    let comidas=parseFloat(document.getElementById("comidas").value);
-    let gramosPorComida=Math.round((peso*50)/comidas);
-    document.getElementById("resultado").innerHTML="Porción: "+gramosPorComida+" g / comida";
-}
-calcular();
+    function accionManual(valor) {
+        fetch("https://blynk.cloud/external/api/update?token="+token+"&V0="+valor);
+    }
 
-function limpiarPM(){ document.getElementById('horaPM').value='none'; }
-function limpiarAM(){ document.getElementById('horaAM').value='none'; }
+    function accionInteligente() {
+        fetch("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
+        alert("🚀 Comando enviado: Ración para Kitty y Fiona");
+    }
 
-async function guardarHorario(){
-    let hAM = document.getElementById("horaAM").value;
-    let hPM = document.getElementById("horaPM").value;
-    let m = document.getElementById("min").value;
-    let horaFinal;
-    let textoLabel;
+    function generarMinutos(){
+        let min=document.getElementById("min");
+        for(let i=0; i<60; i++){
+            min.add(new Option(i.toString().padStart(2,'0'), i));
+        }
+    }
+    generarMinutos();
 
-    if(hPM !== "none") {
-        horaFinal = hPM;
-        let h12 = (horaFinal == 12) ? 12 : horaFinal - 12;
-        textoLabel = h12 + ":" + m.padStart(2,'0') + " PM";
-    } else if (hAM !== "none") {
-        horaFinal = hAM;
-        let h12 = (horaFinal == 0) ? 12 : horaFinal;
-        textoLabel = h12 + ":" + m.padStart(2,'0') + " AM";
-    } else { return; }
+    function limpiarPM(){ document.getElementById('horaPM').value='none'; }
+    function limpiarAM(){ document.getElementById('horaAM').value='none'; }
 
-    await fetch("https://blynk.cloud/external/api/update?token="+token+"&V1="+horaFinal);
-    await fetch("https://blynk.cloud/external/api/update?token="+token+"&V5="+m);
-    document.getElementById("infoProgramacion").innerHTML = "Programado: " + textoLabel;
-}
+    async function guardarHorario(){
+        let hAM = document.getElementById("horaAM").value;
+        let hPM = document.getElementById("horaPM").value;
+        let m = document.getElementById("min").value;
+        let horaFinal = (hPM !== "none") ? hPM : hAM;
+        if(horaFinal === "none") { alert("Elige una hora"); return; }
+        
+        await fetch("https://blynk.cloud/external/api/update?token="+token+"&V1="+horaFinal);
+        await fetch("https://blynk.cloud/external/api/update?token="+token+"&V5="+m);
+        alert("✅ Horario actualizado");
+    }
 
-async function guardarMascota(){
-    let peso=document.getElementById("peso").value;
-    let comidas=document.getElementById("comidas").value;
-    await fetch("https://blynk.cloud/external/api/update?token="+token+"&V10="+peso);
-    await fetch("https://blynk.cloud/external/api/update?token="+token+"&V4="+comidas);
-    alert("✅ Configuración Guardada");
-}
-
-function actualizarReloj(){
-    let ahora=new Date();
-    document.getElementById("reloj").innerHTML=ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-}
-
-setInterval(actualizarReloj,1000);
-actualizarReloj();
+    setInterval(() => {
+        let ahora = new Date();
+        document.getElementById("reloj").innerHTML = ahora.toLocaleTimeString();
+    }, 1000);
 </script>
 </body>
 </html>
