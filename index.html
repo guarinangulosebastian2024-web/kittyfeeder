@@ -1,4 +1,4 @@
-[8:49 p. m., 16/3/2026] Juan Sebastian Angulo Gua: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -23,34 +23,9 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
-    }
-
-    /* Fotos de Masc…
-[8:55 p. m., 16/3/2026] Juan Sebastian Angulo Gua: <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>KittyFeeder Elite</title>
-<style>
-    :root {
-        --primary: #22c55e;
-        --primary-glow: rgba(34, 197, 94, 0.4);
-        --secondary: #3b82f6;
-        --accent: #8b5cf6;
-        --bg: #0f172a;
-        --card-bg: rgba(30, 41, 59, 0.7);
-    }
-
-    body {
-        background: var(--bg);
-        background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
-        color: white;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
+        /* Evita selección de texto en toda la app */
+        -webkit-user-select: none;
+        user-select: none;
     }
 
     /* Fotos de Mascotas */
@@ -140,15 +115,20 @@
         color: white;
         font-weight: bold;
         box-shadow: 0 8px 15px var(--primary-glow);
-        transition: all 0.2s;
+        transition: all 0.1s;
         margin-top: 15px;
         text-transform: uppercase;
         letter-spacing: 1px;
+        /* TRUCO PARA EL BOTÓN MANUAL */
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
     }
 
     button:active {
-        transform: scale(0.96);
-        box-shadow: 0 4px 8px var(--primary-glow);
+        transform: scale(0.95);
+        filter: brightness(1.2);
     }
 
     .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3); }
@@ -163,7 +143,6 @@
         background: #0f172a;
         color: #f1f5f9;
         margin: 10px 0;
-        appearance: none;
     }
 
     .time-grid {
@@ -203,9 +182,7 @@
     }
 </style>
 </head>
-<body>
-
-<div class="pet-header">
+<body oncontextmenu="return false;"> <div class="pet-header">
     <div>
         <div class="pet-photo"><img src="kitty.png" alt="Kitty"></div>
         <p style="color:#4ade80; font-weight:bold; font-size:12px; margin-top:5px;">KITTY</p>
@@ -229,7 +206,15 @@
     </select>
 
     <div id="contenedorManual">
-        <button onmousedown="accionManual(1)" onmouseup="accionManual(0)" ontouchstart="accionManual(1)" ontouchend="accionManual(0)" class="btn-blue">Mantener para servir</button>
+        <button 
+            id="botonManual"
+            onmousedown="accionManual(1)" 
+            onmouseup="accionManual(0)" 
+            ontouchstart="event.preventDefault(); accionManual(1)" 
+            ontouchend="event.preventDefault(); accionManual(0)"
+            class="btn-blue">
+            Mantener para servir
+        </button>
     </div>
 
     <div id="contenedorInteligente" style="display:none;">
@@ -256,11 +241,7 @@
     </select>
     <p style="margin:10px 0 0 0; font-size:14px; color:#94a3b8;">Comidas diarias</p>
     <select id="comidas" onchange="calcular()">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3" selected>3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
+        <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
     </select>
     <div class="resultado" id="resultado">Porción: 0 g</div>
     <button onclick="guardarMascota()">Actualizar Perfil</button>
@@ -280,8 +261,14 @@ function cambiarModo() {
     document.getElementById("contenedorInteligente").style.display = (modo === "inteligente") ? "block" : "none";
 }
 
-function accionManual(valor) { fetch("https://blynk.cloud/external/api/update?token="+token+"&V0="+valor); }
-function accionInteligente() { fetch("https://blynk.cloud/external/api/update?token="+token+"&V2=1"); alert("🚀 Ración enviada"); }
+function accionManual(valor) {
+    fetch("https://blynk.cloud/external/api/update?token="+token+"&V0="+valor);
+}
+
+function accionInteligente() {
+    fetch("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
+    alert("🚀 Ración enviada");
+}
 
 function generarMinutos(){
     let min=document.getElementById("min");
