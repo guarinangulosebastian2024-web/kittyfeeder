@@ -3,285 +3,238 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>KittyFeeder Pro</title>
+<title>KittyFeeder Elite</title>
 <style>
-body{
-    background:#111827;
-    background-image:url("logo.png");
-    background-size:cover;
-    background-repeat:no-repeat;
-    background-position:center;
-    background-attachment:fixed;
-    color:white;
-    font-family: Arial, sans-serif;
-    text-align:center;
-    margin:0;
-    padding:0;
-    /* Evita el desplazamiento lateral accidental */
-    overflow-x: hidden;
-}
+    :root {
+        --primary: #22c55e;
+        --primary-glow: rgba(34, 197, 94, 0.4);
+        --secondary: #3b82f6;
+        --accent: #8b5cf6;
+        --bg: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.7);
+    }
 
-.header{
-    width: 90%; /* Ahora se adapta al ancho del celular */
-    max-width: 500px;
-    margin: auto;
-    margin-top: 20px;
-    padding: 20px;
-    background: rgba(0,0,0,0.85);
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    border: 2px solid #22c55e;
-}
+    body {
+        background: var(--bg);
+        background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
+        color: white;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
 
-.header img{
-    width: 100px; /* Logo un poco más pequeño para dar espacio al texto */
-    margin-bottom: 10px;
-}
+    /* Fondo decorativo con el logo */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: url("logo.png");
+        background-size: 80%;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0.05;
+        z-index: -1;
+    }
 
-.header h1{
-    font-size: 36px; /* Ajustado para pantallas móviles */
-    margin: 0;
-    color: #22c55e;
-}
+    .header {
+        width: 90%;
+        max-width: 450px;
+        margin: 25px auto;
+        padding: 25px;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
 
-.header p{
-    font-size: 18px;
-    margin-top: 8px;
-}
+    .header h1 {
+        font-size: 38px;
+        margin: 0;
+        background: linear-gradient(to right, #4ade80, #22c55e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+    }
 
-.reloj{
-    font-size: 20px;
-    margin-top: 10px;
-    color: #4ade80;
-    font-weight: bold;
-    background: rgba(0,0,0,0.5);
-    padding: 8px;
-    border-radius: 8px;
-}
+    .reloj {
+        font-size: 18px;
+        margin-top: 15px;
+        color: #94a3b8;
+        letter-spacing: 1px;
+    }
 
-.section{
-    width: 90%; /* Ocupa casi todo el ancho */
-    max-width: 500px;
-    margin: auto;
-    margin-top: 20px;
-    padding: 25px 15px; /* Más espacio interno */
-    background: rgba(31,41,55,0.95);
-    border-radius: 18px;
-    font-size: 18px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    box-sizing: border-box;
-}
+    .section {
+        width: 90%;
+        max-width: 450px;
+        margin: 20px auto;
+        padding: 30px 20px;
+        background: var(--card-bg);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
 
-h2 {
-    font-size: 24px;
-    margin-bottom: 15px;
-}
+    h2 {
+        font-size: 22px;
+        margin-top: 0;
+        color: #f1f5f9;
+        font-weight: 600;
+    }
 
-button{
-    font-size: 22px; /* Letra grande para leer bien */
-    width: 100%;    /* Botón ancho para tocar fácil con el pulgar */
-    padding: 20px;
-    background: #22c55e;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    color: white;
-    font-weight: bold;
-    transition: 0.3s;
-    margin-top: 10px;
-}
+    /* Botones Estilo Moderno */
+    button {
+        font-size: 18px;
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, var(--primary), #16a34a);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 8px 15px var(--primary-glow);
+        transition: all 0.2s;
+        margin-top: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-button:active {
-    transform: scale(0.95);
-    background: #16a34a;
-}
+    button:active {
+        transform: scale(0.96);
+        box-shadow: 0 4px 8px var(--primary-glow);
+    }
 
-select{
-    font-size: 20px; /* Selectores grandes */
-    padding: 12px;
-    margin: 10px 0;
-    width: 100%;    /* Selectores a lo ancho */
-    border-radius: 8px;
-    border: 1px solid #4b5563;
-    background: #374151;
-    color: white;
-}
+    .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3); }
+    .btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 8px 15px rgba(139, 92, 246, 0.3); }
 
-/* Ajuste para que los selectores de hora no se amontonen */
-.time-grid {
-    display: flex; 
-    justify-content: space-between; 
-    gap: 10px; 
-    flex-wrap: nowrap;
-}
-.time-item { flex: 1; }
-.time-item p { font-size: 14px; margin-bottom: 5px; color: #9ca3af; }
+    select {
+        font-size: 17px;
+        padding: 14px;
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: #0f172a;
+        color: #f1f5f9;
+        margin: 10px 0;
+        appearance: none;
+    }
 
-.resultado{
-    font-size: 22px;
-    margin-top: 15px;
-    color: #4ade80;
-    font-weight: bold;
-    padding: 15px;
-    border-top: 1px solid #4b5563;
-}
+    .time-grid {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+    }
 
-#infoProgramacion {
-    font-size: 18px;
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 20px;
-    color: #4ade80;
-    padding: 15px;
-    border: 2px dashed #4ade80;
-    border-radius: 10px;
-    display: block;
-    background: rgba(74, 222, 128, 0.1);
-}
+    .time-item { flex: 1; }
+    .time-item p { font-size: 12px; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
 
-.accordion {
-    background-color: #374151;
-    padding: 20px;
-    text-align: center; /* Centrado para móvil */
-}
+    #infoProgramacion {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 14px;
+        color: #4ade80;
+        font-weight: 500;
+    }
 
-.panel {
-    background-color: rgba(17, 24, 39, 0.9);
-    font-size: 16px;
-}
+    .resultado {
+        font-size: 20px;
+        color: #4ade80;
+        margin: 15px 0;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
 
-.contacto-footer {
-    margin-top: 40px;
-    padding: 30px 10px;
-    background: rgba(17, 24, 39, 0.98);
-    border-top: 4px solid #22c55e;
-    font-size: 14px;
-}
+    /* Acordeón Elegante */
+    .accordion {
+        background: rgba(255,255,255,0.05);
+        padding: 15px;
+        margin-top: 10px;
+        font-size: 16px;
+        text-align: left;
+        box-shadow: none;
+    }
+
+    .panel {
+        background: rgba(0,0,0,0.2);
+        border-radius: 0 0 16px 16px;
+        padding: 0 15px;
+    }
+
+    footer {
+        margin-top: 40px;
+        padding: 40px 20px;
+        background: #020617;
+        color: #475569;
+        font-size: 13px;
+        border-top: 1px solid rgba(34, 197, 94, 0.2);
+    }
 </style>
 </head>
 <body>
 
 <div class="header">
-    <img src="logo.png" alt="Logo">
     <h1>KittyFeeder</h1>
-    <p>Alimentación Inteligente</p>
-    <div class="reloj" id="reloj">Cargando...</div>
+    <div class="reloj" id="reloj">--:--:--</div>
 </div>
 
 <div class="section">
-    <h2>Control Inmediato</h2>
+    <h2>Alimentación</h2>
     <select id="modoAlimentacion" onchange="cambiarModo()">
         <option value="manual">Modo Manual</option>
         <option value="inteligente">Modo Inteligente</option>
     </select>
 
     <div id="contenedorManual">
-        <p style="font-size:16px; color:#9ca3af;">Manten presionado para servir</p>
         <button 
             onmousedown="accionManual(1)" 
             onmouseup="accionManual(0)" 
             ontouchstart="accionManual(1)" 
             ontouchend="accionManual(0)"
-            style="background:#3b82f6;">
-            Presionar ahora
+            class="btn-blue">
+            Mantener para servir
         </button>
     </div>
 
     <div id="contenedorInteligente" style="display:none;">
-        <button onclick="accionInteligente()" style="background:#8b5cf6;">
-            Servir ración exacta
+        <button onclick="accionInteligente()" class="btn-purple">
+            Ración Inteligente
         </button>
     </div>
 </div>
 
 <div class="section">
-    <h2>Horario Automático</h2>
+    <h2>Próxima Comida</h2>
     <div class="time-grid">
-        <div class="time-item">
-            <p>AM</p>
-            <select id="horaAM" onchange="limpiarPM()">
-                <option value="none">--</option>
-                <option value="0">12</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-            </select>
-        </div>
-        <div class="time-item">
-            <p>PM</p>
-            <select id="horaPM" onchange="limpiarAM()">
-                <option value="none">--</option>
-                <option value="12">12</option>
-                <option value="13">1</option>
-                <option value="14">2</option>
-                <option value="15">3</option>
-                <option value="16">4</option>
-                <option value="17">5</option>
-                <option value="18">6</option>
-                <option value="19">7</option>
-                <option value="20">8</option>
-                <option value="21">9</option>
-                <option value="22">10</option>
-                <option value="23">11</option>
-            </select>
-        </div>
-        <div class="time-item">
-            <p>Min</p>
-            <select id="min"></select>
-        </div>
+        <div class="time-item"><p>AM</p><select id="horaAM" onchange="limpiarPM()"><option value="none">--</option><option value="0">12</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select></div>
+        <div class="time-item"><p>PM</p><select id="horaPM" onchange="limpiarAM()"><option value="none">--</option><option value="12">12</option><option value="13">1</option><option value="14">2</option><option value="15">3</option><option value="16">4</option><option value="17">5</option><option value="18">6</option><option value="19">7</option><option value="20">8</option><option value="21">9</option><option value="22">10</option><option value="23">11</option></select></div>
+        <div class="time-item"><p>Min</p><select id="min"></select></div>
     </div>
-    <button onclick="guardarHorario()">Guardar Horario</button>
-    <div id="infoProgramacion">Próxima comida: ---</div>
+    <button onclick="guardarHorario()">Establecer Horario</button>
+    <div id="infoProgramacion">Sin programación</div>
 </div>
 
 <div class="section">
-    <h2>Mascota</h2>
-    <p>Peso (kg)</p>
+    <h2>Perfil Mascota</h2>
+    <p style="margin:0; font-size:14px; color:#94a3b8;">Peso (kg)</p>
     <select id="peso" onchange="calcular()">
-        <option value="1">1 kg</option>
-        <option value="2">2 kg</option>
-        <option value="3">3 kg</option>
-        <option value="4">4 kg</option>
-        <option value="5" selected>5 kg</option>
-        <option value="6">6 kg</option>
-        <option value="7">7 kg</option>
-        <option value="8">8 kg</option>
+        <option value="1">1 kg</option><option value="2">2 kg</option><option value="3">3 kg</option><option value="4">4 kg</option><option value="5" selected>5 kg</option><option value="6">6 kg</option><option value="7">7 kg</option><option value="8">8 kg</option>
     </select>
-    <p>Comidas al día</p>
+    <p style="margin:10px 0 0 0; font-size:14px; color:#94a3b8;">Comidas diarias</p>
     <select id="comidas" onchange="calcular()">
-        <option value="1">1 comida</option>
-        <option value="2">2 comidas</option>
-        <option value="3" selected>3 comidas</option>
-        <option value="4">4 comidas</option>
-        <option value="5">5 comidas</option>
+        <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option>
     </select>
     <div class="resultado" id="resultado">Porción: 0 g</div>
-    <button onclick="guardarMascota()">Guardar Configuración</button>
+    <button onclick="guardarMascota()">Actualizar Perfil</button>
 </div>
 
-<div class="section">
-    <button class="accordion">📘 Instrucciones</button>
-    <div class="panel">
-      <p>KittyFeeder usa ESP32 y RTC para precisión total.</p>
-    </div>
-    <button class="accordion">⚠️ Corriente</button>
-    <div class="panel">
-      <p style="color:#f87171">Usar 5V - 5A únicamente.</p>
-    </div>
-</div>
-
-<footer class="contacto-footer">
-    <p>📱 WhatsApp: 311 540 5438</p>
-    <p>© 2026 Sebastián Guarín</p>
+<footer>
+    <p>📱 SOPORTE: 311 540 5438</p>
+    <p>© 2026 SEBASTIÁN GUARÍN • ELITE EDITION</p>
 </footer>
 
 <script>
@@ -299,7 +252,7 @@ function accionManual(valor) {
 
 function accionInteligente() {
     fetch("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
-    alert("¡Sirviendo ración inteligente!");
+    alert("🚀 Ración enviada");
 }
 
 function generarMinutos(){
@@ -314,8 +267,7 @@ generarMinutos();
 function calcular(){
     let peso=parseFloat(document.getElementById("peso").value);
     let comidas=parseFloat(document.getElementById("comidas").value);
-    let gramosDia=peso*50;
-    let gramosPorComida=Math.round(gramosDia/comidas);
+    let gramosPorComida=Math.round((peso*50)/comidas);
     document.getElementById("resultado").innerHTML="Porción: "+gramosPorComida+" g / comida";
 }
 calcular();
@@ -338,13 +290,11 @@ async function guardarHorario(){
         horaFinal = hAM;
         let h12 = (horaFinal == 0) ? 12 : horaFinal;
         textoLabel = h12 + ":" + m.padStart(2,'0') + " AM";
-    } else { alert("Selecciona una hora"); return; }
+    } else { return; }
 
     await fetch("https://blynk.cloud/external/api/update?token="+token+"&V1="+horaFinal);
     await fetch("https://blynk.cloud/external/api/update?token="+token+"&V5="+m);
-    
-    document.getElementById("infoProgramacion").innerHTML = "Próxima comida: " + textoLabel;
-    alert("Horario: " + textoLabel);
+    document.getElementById("infoProgramacion").innerHTML = "Programado: " + textoLabel;
 }
 
 async function guardarMascota(){
@@ -352,22 +302,12 @@ async function guardarMascota(){
     let comidas=document.getElementById("comidas").value;
     await fetch("https://blynk.cloud/external/api/update?token="+token+"&V10="+peso);
     await fetch("https://blynk.cloud/external/api/update?token="+token+"&V4="+comidas);
-    alert("Configuración guardada.");
+    alert("✅ Configuración Guardada");
 }
 
 function actualizarReloj(){
     let ahora=new Date();
-    let opciones = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-    document.getElementById("reloj").innerHTML=ahora.toLocaleTimeString('es-ES', opciones);
-}
-
-var acc = document.getElementsByClassName("accordion");
-for (var i = 0; i < acc.length; i++) {
-  acc[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var panel = this.nextElementSibling;
-    panel.style.display = (panel.style.display === "block") ? "none" : "block";
-  });
+    document.getElementById("reloj").innerHTML=ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 }
 
 setInterval(actualizarReloj,1000);
