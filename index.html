@@ -102,7 +102,12 @@ Ver cámara
 id="camara"
 width="100%" 
 style="border-radius:15px; display:none;"
+onerror="errorCamara()"
 >
+
+<p id="errorMsg" style="color:red; display:none;">
+⚠️ Cámara no disponible (ngrok apagado o link incorrecto)
+</p>
 
 </div>
 
@@ -168,14 +173,16 @@ Actualizar Perfil
 <script>
 const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
 
-// 🔥 LINK CORRECTO (ojo: delores)
-const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev";
+// 🔥 LINK CORREGIDO (IMPORTANTE)
+const URL_CAMARA = "https://calendrical-dolores-unforensic.ngrok-free.dev";
 
 let camActiva = false;
 
 function toggleCamara(){
 let cam = document.getElementById("camara");
 let btn = document.getElementById("btnCam");
+
+document.getElementById("errorMsg").style.display="none";
 
 if(!camActiva){
 cam.src = URL_CAMARA + "?t=" + new Date().getTime();
@@ -198,7 +205,12 @@ cam.src = URL_CAMARA + "?t=" + new Date().getTime();
 }
 },10000);
 
-// --------- TODO LO TUYO ORIGINAL ---------
+// 🔥 ERROR VISUAL
+function errorCamara(){
+document.getElementById("errorMsg").style.display="block";
+}
+
+// --------- TODO TU CÓDIGO ORIGINAL ---------
 
 function cambiarModo(){
 let m=document.getElementById("modoAlimentacion").value;
