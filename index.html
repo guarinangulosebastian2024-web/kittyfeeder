@@ -95,7 +95,6 @@ Ver cámara
 
 <br><br>
 
-<!-- 🔥 AQUÍ ESTÁ EL FIX -->
 <iframe
 id="camara"
 width="100%"
@@ -168,7 +167,9 @@ Actualizar Perfil
 <script>
 
 const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
-const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev";
+
+// 🔥 AQUÍ ESTÁ EL FIX FINAL
+const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev?ngrok-skip-browser-warning=true";
 
 let camActiva = false;
 
@@ -180,7 +181,6 @@ function startManual(){
   accionManual(1);
 }
 
-// 🔥 SUELTA GLOBAL
 document.addEventListener("touchend", ()=>{
   if(presionando){
     accionManual(0);
@@ -195,13 +195,13 @@ document.addEventListener("mouseup", ()=>{
   }
 });
 
-// 🔥 CÁMARA (FIX PRO)
+// 🔥 CÁMARA
 function toggleCamara(){
 let cam = document.getElementById("camara");
 let btn = document.getElementById("btnCam");
 
 if(!camActiva){
-cam.src = URL_CAMARA; // 🔥 SIN ?t=
+cam.src = URL_CAMARA;
 cam.style.display="block";
 btn.innerText="Ocultar cámara";
 camActiva = true;
@@ -212,8 +212,6 @@ btn.innerText="Ver cámara";
 camActiva = false;
 }
 }
-
-// 🔥 (ya no recargamos cada 10s porque iframe no lo necesita)
 
 // --------- TODO LO TUYO ORIGINAL ---------
 
