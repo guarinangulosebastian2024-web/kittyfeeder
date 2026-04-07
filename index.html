@@ -67,13 +67,11 @@ color:#22c55e;
 </select>
 
 <div id="contenedorManual">
-
 <button class="btn-blue"
 ontouchstart="startManual()"
 onmousedown="startManual()">
 MANTENER PARA SERVIR
 </button>
-
 </div>
 
 <div id="contenedorInteligente" style="display:none;">
@@ -81,7 +79,6 @@ MANTENER PARA SERVIR
 Ración Inteligente
 </button>
 </div>
-
 </div>
 
 <!-- 🔥 CÁMARA -->
@@ -168,12 +165,13 @@ Actualizar Perfil
 
 const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
 
-// 🔥 AQUÍ ESTÁ EL FIX FINAL
-const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev?ngrok-skip-browser-warning=true";
+// 🔥 URL CORRECTA (MUY IMPORTANTE /capture)
+const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev/capture";
 
 let camActiva = false;
+let intervaloCam = null;
 
-// 🔥 CONTROL BOTÓN PRO
+// 🔥 CONTROL BOTÓN
 let presionando = false;
 
 function startManual(){
@@ -195,25 +193,33 @@ document.addEventListener("mouseup", ()=>{
   }
 });
 
-// 🔥 CÁMARA
+// 🔥 CÁMARA FIX FINAL
 function toggleCamara(){
 let cam = document.getElementById("camara");
 let btn = document.getElementById("btnCam");
 
 if(!camActiva){
-cam.src = URL_CAMARA;
-cam.style.display="block";
-btn.innerText="Ocultar cámara";
-camActiva = true;
+
+  cam.style.display="block";
+  btn.innerText="Ocultar cámara";
+  camActiva = true;
+
+  intervaloCam = setInterval(()=>{
+    cam.src = URL_CAMARA + "?t=" + new Date().getTime();
+  }, 1000);
+
 }else{
-cam.src="";
-cam.style.display="none";
-btn.innerText="Ver cámara";
-camActiva = false;
+
+  cam.style.display="none";
+  cam.src="";
+  btn.innerText="Ver cámara";
+  camActiva = false;
+
+  clearInterval(intervaloCam);
 }
 }
 
-// --------- TODO LO TUYO ORIGINAL ---------
+// --------- RESTO IGUAL ---------
 
 function cambiarModo(){
 let m=document.getElementById("modoAlimentacion").value;
