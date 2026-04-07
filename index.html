@@ -74,6 +74,9 @@ color:#22c55e;
 
 <div id="contenedorManual">
 <button class="btn-blue"
+ontouchstart="accionManual(1)"
+ontouchend="accionManual(0)"
+ontouchcancel="accionManual(0)"
 onmousedown="accionManual(1)"
 onmouseup="accionManual(0)">
 MANTENER PARA SERVIR
@@ -168,7 +171,7 @@ Actualizar Perfil
 <script>
 const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
 
-// 🔥 LINK CORRECTO (ojo: delores)
+// 🔥 LINK CORRECTO
 const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev";
 
 let camActiva = false;
