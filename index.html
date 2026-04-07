@@ -7,21 +7,18 @@
 
 <style>
 body{
-background: url('logo.png') no-repeat center center fixed;
-background-size: cover;
+background:#0f172a;
 color:white;
 font-family:sans-serif;
 text-align:center;
-backdrop-filter: blur(6px);
 }
 
 .section{
-background: rgba(30,41,59,0.85);
+background:#1e293b;
 margin:20px auto;
 padding:20px;
 border-radius:20px;
 max-width:400px;
-box-shadow: 0 0 20px rgba(0,0,0,0.4);
 }
 
 button{
@@ -59,48 +56,10 @@ margin-top:15px;
 font-size:18px;
 color:#22c55e;
 }
-
-/* 🔥 PERFIL MASCOTAS */
-.perfil{
-display:flex;
-justify-content:center;
-gap:30px;
-margin-top:20px;
-}
-
-.mascota{
-text-align:center;
-}
-
-.mascota img{
-width:80px;
-height:80px;
-border-radius:50%;
-object-fit:cover;
-border:3px solid #22c55e;
-box-shadow:0 0 10px #22c55e;
-}
-
-.mascota p{
-margin-top:5px;
-font-weight:bold;
-}
 </style>
 </head>
 
 <body>
-
-<!-- 🔥 MASCOTAS -->
-<div class="perfil">
-  <div class="mascota">
-    <img src="kitty.jpg">
-    <p>Kitty</p>
-  </div>
-  <div class="mascota">
-    <img src="fiona.jpg">
-    <p>Fiona</p>
-  </div>
-</div>
 
 <h1>KittyFeeder</h1>
 <div id="reloj"></div>
@@ -139,10 +98,12 @@ Ver cámara
 
 <br><br>
 
-<img id="camara"
-width="100%"
+<img 
+id="camara"
+width="100%" 
 style="border-radius:15px; display:none;"
-src="">
+>
+
 </div>
 
 <div class="section">
@@ -204,14 +165,11 @@ Actualizar Perfil
 </button>
 </div>
 
-<div style="margin-top:20px; font-size:14px;">
-<p>📞 311 540 5438</p>
-<p>📧 guarinangulosebastian2024gmail.com</p>
-<p>A.G Robotics</p>
-</div>
-
 <script>
 const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
+
+// 🔥 LINK CORRECTO (ojo: delores)
+const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev";
 
 let camActiva = false;
 
@@ -220,7 +178,7 @@ let cam = document.getElementById("camara");
 let btn = document.getElementById("btnCam");
 
 if(!camActiva){
-cam.src="http://192.168.0.24/";
+cam.src = URL_CAMARA + "?t=" + new Date().getTime();
 cam.style.display="block";
 btn.innerText="Ocultar cámara";
 camActiva = true;
@@ -232,12 +190,15 @@ camActiva = false;
 }
 }
 
+// 🔥 RECONEXIÓN AUTOMÁTICA
 setInterval(()=>{
 if(camActiva){
 let cam = document.getElementById("camara");
-cam.src="http://192.168.0.24/?t="+new Date().getTime();
+cam.src = URL_CAMARA + "?t=" + new Date().getTime();
 }
-},15000);
+},10000);
+
+// --------- TODO LO TUYO ORIGINAL ---------
 
 function cambiarModo(){
 let m=document.getElementById("modoAlimentacion").value;
