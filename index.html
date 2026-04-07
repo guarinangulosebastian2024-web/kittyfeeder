@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -68,7 +68,6 @@ color:#22c55e;
 
 <div id="contenedorManual">
 
-<!-- 🔥 BOTÓN FIX PRO -->
 <button class="btn-blue"
 ontouchstart="startManual()"
 onmousedown="startManual()">
@@ -96,11 +95,13 @@ Ver cámara
 
 <br><br>
 
-<img
+<!-- 🔥 AQUÍ ESTÁ EL FIX -->
+<iframe
 id="camara"
 width="100%"
-style="border-radius:15px; display:none;"
->
+height="300"
+style="border-radius:15px; display:none; border:none;"
+></iframe>
 
 </div>
 
@@ -179,7 +180,7 @@ function startManual(){
   accionManual(1);
 }
 
-// 🔥 SUELTA EN TODA LA PANTALLA
+// 🔥 SUELTA GLOBAL
 document.addEventListener("touchend", ()=>{
   if(presionando){
     accionManual(0);
@@ -194,13 +195,13 @@ document.addEventListener("mouseup", ()=>{
   }
 });
 
-// 🔥 CÁMARA
+// 🔥 CÁMARA (FIX PRO)
 function toggleCamara(){
 let cam = document.getElementById("camara");
 let btn = document.getElementById("btnCam");
 
 if(!camActiva){
-cam.src = URL_CAMARA + "?t=" + new Date().getTime();
+cam.src = URL_CAMARA; // 🔥 SIN ?t=
 cam.style.display="block";
 btn.innerText="Ocultar cámara";
 camActiva = true;
@@ -212,13 +213,7 @@ camActiva = false;
 }
 }
 
-// 🔥 RECONEXIÓN
-setInterval(()=>{
-if(camActiva){
-let cam = document.getElementById("camara");
-cam.src = URL_CAMARA + "?t=" + new Date().getTime();
-}
-},10000);
+// 🔥 (ya no recargamos cada 10s porque iframe no lo necesita)
 
 // --------- TODO LO TUYO ORIGINAL ---------
 
