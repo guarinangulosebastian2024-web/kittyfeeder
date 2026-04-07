@@ -165,7 +165,7 @@ Actualizar Perfil
 
 const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
 
-// 🔥 URL CORRECTA (MUY IMPORTANTE /capture)
+// 🔥 URL FINAL CORRECTA
 const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev/capture";
 
 let camActiva = false;
@@ -193,7 +193,7 @@ document.addEventListener("mouseup", ()=>{
   }
 });
 
-// 🔥 CÁMARA FIX FINAL
+// 🔥 CÁMARA ESTABLE (FIX FINAL)
 function toggleCamara(){
 let cam = document.getElementById("camara");
 let btn = document.getElementById("btnCam");
@@ -206,7 +206,7 @@ if(!camActiva){
 
   intervaloCam = setInterval(()=>{
     cam.src = URL_CAMARA + "?t=" + new Date().getTime();
-  }, 1000);
+  }, 2000); // 🔥 CAMBIO CLAVE
 
 }else{
 
@@ -219,7 +219,7 @@ if(!camActiva){
 }
 }
 
-// --------- RESTO IGUAL ---------
+// -------- RESTO IGUAL --------
 
 function cambiarModo(){
 let m=document.getElementById("modoAlimentacion").value;
