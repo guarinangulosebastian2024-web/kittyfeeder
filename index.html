@@ -92,12 +92,11 @@ Ver cámara
 
 <br><br>
 
-<iframe
+<img
 id="camara"
 width="100%"
-height="300"
-style="border-radius:15px; display:none; border:none;"
-></iframe>
+style="border-radius:15px; display:none;"
+>
 
 </div>
 
@@ -165,13 +164,12 @@ Actualizar Perfil
 
 const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
 
-// 🔥 URL FINAL CORRECTA
-const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev/capture";
+// 🔥 SOLO STREAM (CLAVE)
+const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev";
 
 let camActiva = false;
-let intervaloCam = null;
 
-// 🔥 CONTROL BOTÓN
+// 🔥 BOTÓN PRO
 let presionando = false;
 
 function startManual(){
@@ -193,29 +191,21 @@ document.addEventListener("mouseup", ()=>{
   }
 });
 
-// 🔥 CÁMARA ESTABLE (FIX FINAL)
+// 🔥 CÁMARA STREAM REAL
 function toggleCamara(){
 let cam = document.getElementById("camara");
 let btn = document.getElementById("btnCam");
 
 if(!camActiva){
-
+  cam.src = URL_CAMARA; // 🔥 STREAM DIRECTO
   cam.style.display="block";
   btn.innerText="Ocultar cámara";
   camActiva = true;
-
-  intervaloCam = setInterval(()=>{
-    cam.src = URL_CAMARA + "?t=" + new Date().getTime();
-  }, 2000); // 🔥 CAMBIO CLAVE
-
 }else{
-
-  cam.style.display="none";
   cam.src="";
+  cam.style.display="none";
   btn.innerText="Ver cámara";
   camActiva = false;
-
-  clearInterval(intervaloCam);
 }
 }
 
