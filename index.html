@@ -6,10 +6,26 @@
 
 <style>
 body{
-  background:#0f172a;
+  background: #0f172a url('logo.png') center no-repeat;
+  background-size: 400px;
   color:white;
-  font-family:sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   text-align:center;
+}
+
+h1{
+  font-size:28px;
+  margin-top:10px;
+}
+
+.clock{
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  margin:10px auto;
+  width:250px;
+  font-size:18px;
+  border:2px solid #22c55e;
 }
 
 .section{
@@ -17,24 +33,42 @@ body{
   margin:20px auto;
   padding:20px;
   border-radius:15px;
-  max-width:400px;
+  max-width:420px;
+  box-shadow:0 0 15px #000;
 }
 
-button, input{
-  width:80%;
+button, select{
+  width:85%;
   padding:12px;
   margin:8px;
   border:none;
   border-radius:10px;
+  font-size:15px;
 }
 
 .blue{ background:#06b6d4; }
 .green{ background:#22c55e; }
 .red{ background:#ef4444; }
+.yellow{ background:#facc15; color:black; }
 
-label{
-  display:block;
+.result{
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
   margin-top:10px;
+  border:1px solid #22c55e;
+}
+
+#cam{
+  width:90%;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.footer{
+  margin-top:20px;
+  font-size:13px;
+  color:#ccc;
 }
 </style>
 
@@ -42,118 +76,179 @@ label{
 
 <body>
 
-<h1>🐱 KittyFeeder PRO</h1>
+<h1>🤖 KittyFeeder PRO</h1>
 
-<!-- 🔵 MANUAL -->
+<div class="clock" id="horaActual"></div>
+
+<!-- MANUAL -->
 <div class="section">
 <h2>Modo Manual</h2>
 
 <button class="blue"
 onmousedown="servir()"
-onmouseup="detener()"
-ontouchstart="servir()"
-ontouchend="detener()">
+onmouseup="detener()">
 MANTENER PARA SERVIR
 </button>
 
 </div>
 
-<!-- 🧠 INTELIGENTE -->
+<!-- INTELIGENTE -->
 <div class="section">
 <h2>Modo Inteligente</h2>
 
-<button class="blue" onclick="inteligente()">
-SERVIR AUTOMÁTICO
-</button>
+<button class="blue" onclick="inteligente()">SERVIR AUTOMÁTICO</button>
 
-<label>Peso (kg)</label>
-<input type="number" id="peso" min="1" max="15" value="5">
+<select id="peso"></select>
+<select id="comidas"></select>
 
-<label>Comidas por día</label>
-<input type="number" id="comidas" min="1" max="6" value="2">
+<button class="yellow" onclick="guardarConfig()">Guardar configuración</button>
 
-<button onclick="guardarConfig()">Guardar configuración</button>
+<div class="result" id="resultado"></div>
 
 </div>
 
-<!-- ⏰ HORARIO -->
+<!-- HORARIO -->
 <div class="section">
 <h2>Programar comida</h2>
 
-<input type="number" id="hora" min="0" max="23" placeholder="Hora">
-<input type="number" id="minuto" min="0" max="59" placeholder="Minuto">
+<label>Horas AM</label>
+<select id="horaAM"></select>
 
-<button onclick="guardarHora()">Guardar horario</button>
+<label>Horas PM</label>
+<select id="horaPM"></select>
+
+<label>Minutos</label>
+<select id="minuto"></select>
+
+<button class="green" onclick="guardarHora()">Guardar horario</button>
+
+<div class="result" id="horario"></div>
 
 </div>
 
-<!-- 📷 CÁMARA -->
+<!-- CAMARA -->
 <div class="section">
 <h2>Cámara</h2>
 
-<button class="green" onclick="verCamara()">Ver cámara</button>
-<button class="red" onclick="ocultarCamara()">Cerrar cámara</button>
+<div class="clock" id="horaCam"></div>
 
+<button class="green" onclick="toggleCam()">Ver / Ocultar cámara</button>
+
+<img id="cam" src="http://192.168.0.24" style="display:none;">
+
+</div>
+
+<div class="footer">
+📞 Servicio: 3115405438  
+📧 guarinangulosebastian2024@gmail.com  
+⚙️ A.G Robotics
 </div>
 
 <script>
 
-const token = "rENj_cpRbyDzJjYU6ZxKDegh8J0xxbtP";
-const CAM_URL = "http://192.168.0.24";
+// 🔐 TOKEN BLYNK
+var token = "rENj_cpRbyDzJjYU6ZxKDegh8J0xxbtP";
 
-// 🔥 función base
+// ⏰ RELOJ
+setInterval(function(){
+  var now = new Date();
+  var hora = now.toLocaleTimeString();
+  document.getElementById("horaActual").innerHTML = hora;
+  document.getElementById("horaCam").innerHTML = hora;
+},1000);
+
+// 📡 FUNCIÓN ENVIAR A BLYNK
 function enviar(url){
   fetch(url)
-  .then(function(res){ return res.text(); })
-  .then(function(data){ console.log("OK:", data); })
-  .catch(function(err){ console.log("ERROR:", err); });
+  .then(r=>r.text())
+  .then(d=>console.log("Respuesta:", d))
+  .catch(e=>console.log("Error:", e));
 }
 
 // 🔵 MANUAL
 function servir(){
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V0=1");
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V0=1");
 }
 
 function detener(){
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V0=0");
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V0=0");
 }
 
 // 🧠 INTELIGENTE
 function inteligente(){
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V2=1");
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
 }
 
-// ⚙️ CONFIG
+// 🍽 CONFIGURACIÓN COMIDA
 function guardarConfig(){
-  var peso = document.getElementById("peso").value;
-  var comidas = document.getElementById("comidas").value;
+  var peso = parseInt(document.getElementById("peso").value);
+  var comidas = parseInt(document.getElementById("comidas").value);
 
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V10=" + peso);
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V4=" + comidas);
+  var gramosDia = peso * 40;
+  var porcion = Math.round(gramosDia / comidas);
 
-  alert("Configuración guardada");
+  document.getElementById("resultado").innerHTML =
+  "🐾 Peso: "+peso+" kg<br>"+
+  "🍽️ Comidas: "+comidas+"<br>"+
+  "⚖️ Total día: "+gramosDia+" g<br>"+
+  "➡️ Por comida: "+porcion+" g";
+
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V10="+porcion);
 }
 
-// ⏰ HORARIO
+// ⏰ 🔥 PROGRAMAR HORARIO (CORREGIDO)
 function guardarHora(){
-  var h = document.getElementById("hora").value;
+
+  var am = document.getElementById("horaAM").value;
+  var pm = document.getElementById("horaPM").value;
   var m = document.getElementById("minuto").value;
 
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V1=" + h);
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V5=" + m);
+  var horaAM = parseInt(am);
+  var horaPM = parseInt(pm) + 12;
+  var minuto = parseInt(m);
 
-  alert("Horario guardado");
+  // 🔥 ENVÍO REAL A BLYNK
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V1="+horaAM);
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V5="+minuto);
+
+  document.getElementById("horario").innerHTML =
+  "⏰ AM: "+horaAM+":"+minuto+" | PM: "+horaPM+":"+minuto;
+
+  console.log("Hora enviada:", horaAM, "Minuto:", minuto);
 }
 
 // 📷 CÁMARA
-function verCamara(){
-  window.open(CAM_URL, "_blank");
+function toggleCam(){
+  var cam = document.getElementById("cam");
 
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V6=1");
+  if(cam.style.display === "none"){
+    cam.style.display = "block";
+  }else{
+    cam.style.display = "none";
+  }
 }
 
-function ocultarCamara(){
-  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V6=0");
+// 🔧 GENERAR OPCIONES
+
+for(var i=1;i<=15;i++){
+  document.getElementById("peso").innerHTML += "<option value='"+i+"'>"+i+" kg</option>";
+}
+
+for(var i=1;i<=6;i++){
+  document.getElementById("comidas").innerHTML += "<option value='"+i+"'>"+i+" comidas</option>";
+}
+
+for(var i=1;i<=12;i++){
+  document.getElementById("horaAM").innerHTML += "<option value='"+i+"'>"+i+"</option>";
+}
+
+for(var i=1;i<=12;i++){
+  document.getElementById("horaPM").innerHTML += "<option value='"+i+"'>"+i+"</option>";
+}
+
+for(var i=0;i<60;i++){
+  var val = i<10 ? "0"+i : i;
+  document.getElementById("minuto").innerHTML += "<option value='"+i+"'>"+val+"</option>";
 }
 
 </script>
