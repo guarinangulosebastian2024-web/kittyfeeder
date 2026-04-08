@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 <title>KittyFeeder PRO</title>
 
 <style>
 body{
-  background: #0f172a url('logo.png') center no-repeat;
-  background-size: 400px;
+  background:#0f172a;
   color:white;
-  font-family: 'Segoe UI', sans-serif;
+  font-family:'Segoe UI', sans-serif;
   text-align:center;
+  margin:0;
 }
 
 h1{
-  font-size:28px;
-  margin-top:10px;
+  font-size:22px;
+  margin:10px;
 }
 
 .clock{
@@ -23,55 +24,41 @@ h1{
   padding:10px;
   border-radius:10px;
   margin:10px auto;
-  width:250px;
-  font-size:18px;
+  width:80%;
+  max-width:300px;
   border:2px solid #22c55e;
 }
 
 .section{
   background:#1e293b;
-  margin:20px auto;
-  padding:20px;
+  margin:15px;
+  padding:15px;
   border-radius:15px;
-  max-width:420px;
-  box-shadow:0 0 15px #000;
 }
 
 button, select{
-  width:85%;
-  padding:12px;
-  margin:8px;
+  width:95%;
+  padding:14px;
+  margin:6px;
   border:none;
   border-radius:10px;
-  font-size:15px;
+  font-size:16px;
+}
+
+button:active{
+  transform: scale(0.97);
 }
 
 .blue{ background:#06b6d4; }
 .green{ background:#22c55e; }
-.red{ background:#ef4444; }
 .yellow{ background:#facc15; color:black; }
 
-.result{
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
-  margin-top:10px;
-  border:1px solid #22c55e;
-}
-
 #cam{
-  width:90%;
+  width:100%;
   border-radius:10px;
   margin-top:10px;
-}
-
-.footer{
-  margin-top:20px;
-  font-size:13px;
-  color:#ccc;
 }
 </style>
-
 </head>
 
 <body>
@@ -83,13 +70,7 @@ button, select{
 <!-- MANUAL -->
 <div class="section">
 <h2>Modo Manual</h2>
-
-<button class="blue"
-onmousedown="servir()"
-onmouseup="detener()">
-MANTENER PARA SERVIR
-</button>
-
+<button class="blue" onclick="toggleManual()">SERVIR / DETENER</button>
 </div>
 
 <!-- INTELIGENTE -->
@@ -103,151 +84,108 @@ MANTENER PARA SERVIR
 
 <button class="yellow" onclick="guardarConfig()">Guardar configuración</button>
 
-<div class="result" id="resultado"></div>
-
+<div id="resultado"></div>
 </div>
 
 <!-- HORARIO -->
 <div class="section">
 <h2>Programar comida</h2>
 
-<label>Horas AM</label>
-<select id="horaAM"></select>
-
-<label>Horas PM</label>
-<select id="horaPM"></select>
-
-<label>Minutos</label>
+<select id="hora"></select>
 <select id="minuto"></select>
 
 <button class="green" onclick="guardarHora()">Guardar horario</button>
 
-<div class="result" id="horario"></div>
-
+<div id="horario"></div>
 </div>
 
 <!-- CAMARA -->
 <div class="section">
 <h2>Cámara</h2>
 
-<div class="clock" id="horaCam"></div>
+<button class="green" onclick="activarCam()">Activar cámara</button>
 
-<button class="green" onclick="toggleCam()">Ver / Ocultar cámara</button>
-
-<img id="cam" src="http://192.168.0.24" style="display:none;">
-
-</div>
-
-<div class="footer">
-📞 Servicio: 3115405438  
-📧 guarinangulosebastian2024@gmail.com  
-⚙️ A.G Robotics
+<img id="cam" style="display:none;">
 </div>
 
 <script>
 
-// 🔐 TOKEN BLYNK
-var token = "rENj_cpRbyDzJjYU6ZxKDegh8J0xxbtP";
+let token = "rENj_cpRbyDzJjYU6ZxKDegh8J0xxbtP";
+let estadoServo = 0;
 
-// ⏰ RELOJ
-setInterval(function(){
-  var now = new Date();
-  var hora = now.toLocaleTimeString();
-  document.getElementById("horaActual").innerHTML = hora;
-  document.getElementById("horaCam").innerHTML = hora;
+// reloj
+setInterval(()=>{
+  document.getElementById("horaActual").innerHTML =
+    new Date().toLocaleTimeString();
 },1000);
 
-// 📡 FUNCIÓN ENVIAR A BLYNK
+// enviar datos
 function enviar(url){
-  fetch(url)
-  .then(r=>r.text())
-  .then(d=>console.log("Respuesta:", d))
-  .catch(e=>console.log("Error:", e));
+  fetch(url).catch(e=>console.log("Error:", e));
 }
 
-// 🔵 MANUAL
-function servir(){
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V0=1");
+// MANUAL (toggle)
+function toggleManual(){
+  estadoServo = estadoServo === 0 ? 1 : 0;
+
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V0="+estadoServo);
 }
 
-function detener(){
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V0=0");
-}
-
-// 🧠 INTELIGENTE
+// INTELIGENTE
 function inteligente(){
   enviar("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
 }
 
-// 🍽 CONFIGURACIÓN COMIDA
+// CONFIG
 function guardarConfig(){
-  var peso = parseInt(document.getElementById("peso").value);
-  var comidas = parseInt(document.getElementById("comidas").value);
+  let pesoVal = parseInt(document.getElementById("peso").value);
+  let comidasVal = parseInt(document.getElementById("comidas").value);
 
-  var gramosDia = peso * 40;
-  var porcion = Math.round(gramosDia / comidas);
+  let gramos = pesoVal * 40;
+  let porcion = Math.round(gramos / comidasVal);
 
   document.getElementById("resultado").innerHTML =
-  "🐾 Peso: "+peso+" kg<br>"+
-  "🍽️ Comidas: "+comidas+"<br>"+
-  "⚖️ Total día: "+gramosDia+" g<br>"+
-  "➡️ Por comida: "+porcion+" g";
+    "🍽 " + porcion + " g por comida";
 
   enviar("https://blynk.cloud/external/api/update?token="+token+"&V10="+porcion);
 }
 
-// ⏰ 🔥 PROGRAMAR HORARIO (CORREGIDO)
+// HORARIO
 function guardarHora(){
+  let h = parseInt(document.getElementById("hora").value);
+  let m = parseInt(document.getElementById("minuto").value);
 
-  var am = document.getElementById("horaAM").value;
-  var pm = document.getElementById("horaPM").value;
-  var m = document.getElementById("minuto").value;
-
-  var horaAM = parseInt(am);
-  var horaPM = parseInt(pm) + 12;
-  var minuto = parseInt(m);
-
-  // 🔥 ENVÍO REAL A BLYNK
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V1="+horaAM);
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V5="+minuto);
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V1="+h);
+  enviar("https://blynk.cloud/external/api/update?token="+token+"&V5="+m);
 
   document.getElementById("horario").innerHTML =
-  "⏰ AM: "+horaAM+":"+minuto+" | PM: "+horaPM+":"+minuto;
-
-  console.log("Hora enviada:", horaAM, "Minuto:", minuto);
+    "⏰ " + h + ":" + (m < 10 ? "0"+m : m);
 }
 
-// 📷 CÁMARA
-function toggleCam(){
-  var cam = document.getElementById("cam");
+// CAMARA (estable)
+function activarCam(){
+  let cam = document.getElementById("cam");
 
-  if(cam.style.display === "none"){
-    cam.style.display = "block";
-  }else{
-    cam.style.display = "none";
-  }
+  cam.src = "http://192.168.0.24"; // CAMBIA SI NECESITAS
+
+  cam.style.display = "block";
 }
 
-// 🔧 GENERAR OPCIONES
-
-for(var i=1;i<=15;i++){
+// OPCIONES
+for(let i=1;i<=15;i++){
   document.getElementById("peso").innerHTML += "<option value='"+i+"'>"+i+" kg</option>";
 }
 
-for(var i=1;i<=6;i++){
+for(let i=1;i<=6;i++){
   document.getElementById("comidas").innerHTML += "<option value='"+i+"'>"+i+" comidas</option>";
 }
 
-for(var i=1;i<=12;i++){
-  document.getElementById("horaAM").innerHTML += "<option value='"+i+"'>"+i+"</option>";
+for(let i=0;i<24;i++){
+  document.getElementById("hora").innerHTML += "<option value='"+i+"'>"+i+"</option>";
 }
 
-for(var i=1;i<=12;i++){
-  document.getElementById("horaPM").innerHTML += "<option value='"+i+"'>"+i+"</option>";
-}
-
-for(var i=0;i<60;i++){
-  var val = i<10 ? "0"+i : i;
+for(let i=0;i<60;i++){
+  let val = i < 10 ? "0"+i : i;
   document.getElementById("minuto").innerHTML += "<option value='"+i+"'>"+val+"</option>";
 }
 
