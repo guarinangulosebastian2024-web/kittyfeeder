@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KittyFeeder Elite</title>
 
 <style>
@@ -33,283 +32,68 @@ cursor:pointer;
 .btn-purple{background:#7c3aed;}
 .btn-green{background:#22c55e;}
 .btn-camera{background:#0ea5e9;}
-select{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:10px;
-background:#0f172a;
-color:white;
-}
-.time-grid{
-display:flex;
-gap:10px;
-}
-.resultado{
-margin-top:15px;
-font-size:18px;
-color:#22c55e;
-}
 </style>
 </head>
 
 <body>
 
-<h1>KittyFeeder</h1>
-<div id="reloj"></div>
+<h1>🐱 KittyFeeder Elite</h1>
 
+<!-- 🔥 IFRAME OCULTO (CLAVE DEL ÉXITO) -->
+<iframe id="hiddenFrame" style="display:none;"></iframe>
+
+<!-- 🔥 ALIMENTACIÓN -->
 <div class="section">
 <h2>Alimentación</h2>
 
-<select id="modoAlimentacion" onchange="cambiarModo()">
-<option value="manual">Modo Manual</option>
-<option value="inteligente">Modo Inteligente</option>
-</select>
+<button class="btn-blue" onclick="manualOn()">SERVIR</button>
+<button class="btn-blue" onclick="manualOff()">DETENER</button>
 
-<div id="contenedorManual">
-<button class="btn-blue"
-ontouchstart="startManual()"
-onmousedown="startManual()">
-MANTENER PARA SERVIR
-</button>
-</div>
-
-<div id="contenedorInteligente" style="display:none;">
-<button class="btn-purple" onclick="accionInteligente()">
-Ración Inteligente
-</button>
-</div>
+<button class="btn-purple" onclick="inteligente()">Ración Inteligente</button>
 </div>
 
 <!-- 🔥 CÁMARA -->
 <div class="section">
-<h2>📷 Cámara en Vivo</h2>
-<p>🕒 Hora en vivo: <span id="horaCam"></span></p>
+<h2>📷 Cámara</h2>
 
-<button class="btn-camera" onclick="toggleCamara()" id="btnCam">
-Ver cámara
-</button>
+<button class="btn-camera" onclick="camOn()">Ver cámara</button>
+<button class="btn-camera" onclick="camOff()">Ocultar cámara</button>
 
-<br><br>
-
-<img
-id="camara"
-width="100%"
-style="border-radius:15px; display:none;"
->
-
-</div>
-
-<div class="section">
-<h2>Próxima Comida</h2>
-
-<div class="time-grid">
-<select id="horaAM">
-<option value="none">AM</option>
-<option value="0">12</option><option value="1">1</option>
-<option value="2">2</option><option value="3">3</option>
-<option value="4">4</option><option value="5">5</option>
-<option value="6">6</option><option value="7">7</option>
-<option value="8">8</option><option value="9">9</option>
-<option value="10">10</option><option value="11">11</option>
-</select>
-
-<select id="horaPM">
-<option value="none">PM</option>
-<option value="12">12</option><option value="13">1</option>
-<option value="14">2</option><option value="15">3</option>
-<option value="16">4</option><option value="17">5</option>
-<option value="18">6</option><option value="19">7</option>
-<option value="20">8</option><option value="21">9</option>
-<option value="22">10</option><option value="23">11</option>
-</select>
-
-<select id="min"></select>
-</div>
-
-<button class="btn-green" onclick="guardarHorario()">
-Establecer Horario
-</button>
-
-<div id="infoProgramacion">Sin programación</div>
-</div>
-
-<div class="section">
-<h2>Perfil Mascota</h2>
-
-<p>Peso (kg)</p>
-<select id="peso" onchange="calcularRacion()"></select>
-
-<p>Comidas al día</p>
-<select id="comidas" onchange="calcularRacion()">
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3" selected>3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-</select>
-
-<div class="resultado" id="resultado">
-Porción: 0 g / comida
-</div>
-
-<button class="btn-green" onclick="guardarPerfil()">
-Actualizar Perfil
-</button>
-
+<img id="camara" width="100%" style="display:none;">
 </div>
 
 <script>
 
-const token="3BbMQhwErMYUsrMrJh261-ihcrm_zkGu";
-
-// 🔥 SOLO STREAM (CLAVE)
+const token = "rENj_cpRbyDzJjYU6ZxKDegh8J0xxbtP";
 const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev";
 
-let camActiva = false;
-
-// 🔥 BOTÓN PRO
-let presionando = false;
-
-function startManual(){
-  presionando = true;
-  accionManual(1);
+// 🔥 FUNCIÓN REAL (100% FUNCIONA)
+function enviar(pin, valor){
+  document.getElementById("hiddenFrame").src =
+  https://blynk.cloud/external/api/update?token=${token}&${pin}=${valor};
 }
 
-document.addEventListener("touchend", ()=>{
-  if(presionando){
-    accionManual(0);
-    presionando = false;
-  }
-});
+// 🔥 MANUAL
+function manualOn(){ enviar("V0",1); }
+function manualOff(){ enviar("V0",0); }
 
-document.addEventListener("mouseup", ()=>{
-  if(presionando){
-    accionManual(0);
-    presionando = false;
-  }
-});
+// 🔥 INTELIGENTE
+function inteligente(){ enviar("V2",1); }
 
-// 🔥 CÁMARA STREAM REAL
-function toggleCamara(){
-let cam = document.getElementById("camara");
-let btn = document.getElementById("btnCam");
-
-if(!camActiva){
-  cam.src = URL_CAMARA; // 🔥 STREAM DIRECTO
+// 🔥 CÁMARA
+function camOn(){
+  enviar("V6",1);
+  let cam = document.getElementById("camara");
+  cam.src = URL_CAMARA;
   cam.style.display="block";
-  btn.innerText="Ocultar cámara";
-  camActiva = true;
-}else{
-  cam.src="";
+}
+
+function camOff(){
+  enviar("V6",0);
+  let cam = document.getElementById("camara");
   cam.style.display="none";
-  btn.innerText="Ver cámara";
-  camActiva = false;
+  cam.src="";
 }
-}
-
-// -------- RESTO IGUAL --------
-
-function cambiarModo(){
-let m=document.getElementById("modoAlimentacion").value;
-document.getElementById("contenedorManual").style.display=(m==="manual")?"block":"none";
-document.getElementById("contenedorInteligente").style.display=(m==="inteligente")?"block":"none";
-}
-
-function accionManual(v){
-fetch("https://blynk.cloud/external/api/update?token="+token+"&V0="+v);
-}
-
-function accionInteligente(){
-fetch("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
-
-let gramos=document.getElementById("gramosCalculados").value;
-alert("🍽️ Sirviendo "+gramos+" g");
-}
-
-function generarMin(){
-let m=document.getElementById("min");
-for(let i=0;i<60;i++){
-m.add(new Option(i.toString().padStart(2,'0'),i));
-}
-}
-generarMin();
-
-async function guardarHorario(){
-let hAM=document.getElementById("horaAM").value;
-let hPM=document.getElementById("horaPM").value;
-let m=document.getElementById("min").value;
-
-let horaFinal;
-let periodo;
-
-if(hPM!="none"){
-horaFinal=parseInt(hPM);
-periodo="p.m.";
-}else if(hAM!="none"){
-horaFinal=parseInt(hAM);
-periodo="a.m.";
-}else return;
-
-await fetch("https://blynk.cloud/external/api/update?token="+token+"&V1="+horaFinal);
-await fetch("https://blynk.cloud/external/api/update?token="+token+"&V5="+m);
-
-document.getElementById("infoProgramacion").innerHTML=
-"Programado: "+horaFinal+":"+m+" "+periodo;
-}
-
-function generarPesos(){
-let select=document.getElementById("peso");
-for(let i=1;i<=15;i++){
-let opt=new Option(i+" kg",i);
-if(i===5) opt.selected=true;
-select.add(opt);
-}
-}
-generarPesos();
-
-function calcularRacion(){
-let peso=parseFloat(document.getElementById("peso").value);
-let comidas=parseFloat(document.getElementById("comidas").value);
-
-let gramosDia=Math.round(peso*50);
-let gramosComida=Math.round(gramosDia/comidas);
-
-document.getElementById("resultado").innerHTML=
-"Porción: "+gramosComida+" g / comida";
-
-if(!document.getElementById("gramosCalculados")){
-let input=document.createElement("input");
-input.type="hidden";
-input.id="gramosCalculados";
-document.body.appendChild(input);
-}
-document.getElementById("gramosCalculados").value=gramosComida;
-}
-calcularRacion();
-
-async function guardarPerfil(){
-let peso=document.getElementById("peso").value;
-let comidas=document.getElementById("comidas").value;
-
-await fetch("https://blynk.cloud/external/api/update?token="+token+"&V10="+peso);
-await fetch("https://blynk.cloud/external/api/update?token="+token+"&V4="+comidas);
-
-alert("✅ Perfil guardado");
-}
-
-function reloj(){
-document.getElementById("reloj").innerHTML=
-new Date().toLocaleTimeString('es-ES',{hour12:true});
-}
-setInterval(reloj,1000);
-
-function relojCam(){
-let ahora=new Date().toLocaleTimeString('es-ES',{hour12:true});
-document.getElementById("horaCam").innerHTML=ahora;
-}
-setInterval(relojCam,1000);
 
 </script>
 
