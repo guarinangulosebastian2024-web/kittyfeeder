@@ -1,101 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>KittyFeeder Elite</title>
-
-<style>
-body{
-background:#0f172a;
-color:white;
-font-family:sans-serif;
-text-align:center;
-}
-.section{
-background:#1e293b;
-margin:20px auto;
-padding:20px;
-border-radius:20px;
-max-width:400px;
-}
-button{
-width:100%;
-padding:15px;
-border:none;
-border-radius:12px;
-color:white;
-font-weight:bold;
-margin-top:10px;
-cursor:pointer;
-}
-.btn-blue{background:#2563eb;}
-.btn-purple{background:#7c3aed;}
-.btn-green{background:#22c55e;}
-.btn-camera{background:#0ea5e9;}
-</style>
-</head>
-
-<body>
-
-<h1>🐱 KittyFeeder Elite</h1>
-
-<!-- 🔥 IFRAME OCULTO (CLAVE DEL ÉXITO) -->
-<iframe id="hiddenFrame" style="display:none;"></iframe>
-
-<!-- 🔥 ALIMENTACIÓN -->
-<div class="section">
-<h2>Alimentación</h2>
-
-<button class="btn-blue" onclick="manualOn()">SERVIR</button>
-<button class="btn-blue" onclick="manualOff()">DETENER</button>
-
-<button class="btn-purple" onclick="inteligente()">Ración Inteligente</button>
-</div>
-
-<!-- 🔥 CÁMARA -->
-<div class="section">
-<h2>📷 Cámara</h2>
-
-<button class="btn-camera" onclick="camOn()">Ver cámara</button>
-<button class="btn-camera" onclick="camOff()">Ocultar cámara</button>
-
-<img id="camara" width="100%" style="display:none;">
-</div>
+<title>KittyFeeder</title>
+</head><body><h1>🐱 KittyFeeder</h1><button onclick="servir()">SERVIR</button>
+<button onclick="detener()">DETENER</button>
+<button onclick="inteligente()">INTELIGENTE</button>
 
 <script>
 
 const token = "rENj_cpRbyDzJjYU6ZxKDegh8J0xxbtP";
-const URL_CAMARA = "https://calendrical-delores-unforensic.ngrok-free.dev";
 
-// 🔥 FUNCIÓN REAL (100% FUNCIONA)
-function enviar(pin, valor){
-  document.getElementById("hiddenFrame").src =
-  https://blynk.cloud/external/api/update?token=${token}&${pin}=${valor};
+function enviar(url){
+  fetch(url)
+    .then(res => res.text())
+    .then(data => console.log("OK:", data))
+    .catch(err => console.log("ERROR:", err));
 }
 
-// 🔥 MANUAL
-function manualOn(){ enviar("V0",1); }
-function manualOff(){ enviar("V0",0); }
-
-// 🔥 INTELIGENTE
-function inteligente(){ enviar("V2",1); }
-
-// 🔥 CÁMARA
-function camOn(){
-  enviar("V6",1);
-  let cam = document.getElementById("camara");
-  cam.src = URL_CAMARA;
-  cam.style.display="block";
+function servir(){
+  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V0=1");
 }
 
-function camOff(){
-  enviar("V6",0);
-  let cam = document.getElementById("camara");
-  cam.style.display="none";
-  cam.src="";
+function detener(){
+  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V0=0");
 }
 
-</script>
+function inteligente(){
+  enviar("https://blynk.cloud/external/api/update?token=" + token + "&V2=1");
+}
 
-</body>
+</script></body>
 </html>
