@@ -27,7 +27,7 @@ body{
   background-size: cover;
 }
 
-/* 🔥 CAPA OSCURA PARA LEGIBILIDAD */
+/* 🔥 CAPA OSCURA */
 .overlay{
   background: rgba(0,0,0,0.7);
   min-height:100vh;
@@ -98,16 +98,14 @@ p{
   margin-top:10px;
 }
 
-/* 🔥 ESTADO */
+/* 🔥 ESTADOS */
 .estado-ok{
   color:#22c55e;
   font-weight:bold;
 }
-
 .estado-wait{
   color:#facc15;
 }
-
 .estado-off{
   color:red;
 }
@@ -121,19 +119,16 @@ p{
 
 <h1>🤖 A.G ROBOTICS</h1>
 
-<!-- ⏰ HORA -->
 <div class="card">
 <h2>⏰ Hora en vivo</h2>
 <p id="hora"></p>
 </div>
 
-<!-- 🎮 MANUAL -->
 <div class="card">
 <h2>🍽 Alimentar</h2>
 <button onclick="servir()">Servir comida</button>
 </div>
 
-<!-- ⏰ PROGRAMAR -->
 <div class="card">
 <h2>⏰ Programar comida</h2>
 <input type="time" id="horaProg">
@@ -141,14 +136,12 @@ p{
 <p id="msg"></p>
 </div>
 
-<!-- 📷 CAMARA -->
 <div class="card">
 <h2>📷 Cámara en vivo</h2>
 <button onclick="camara()">Ver cámara</button>
 <div id="cam"></div>
 </div>
 
-<!-- 📡 ESTADO -->
 <div class="card">
 <h2>📡 Estado</h2>
 <p id="estado" class="estado-wait">Esperando...</p>
@@ -158,14 +151,22 @@ p{
 
 <script>
 
-const BASE = "http://192.168.0.25";
-const CAM  = "http://192.168.0.24";
+// 🔥 DETECCIÓN AUTOMÁTICA (ARREGLADA)
+let BASE = "";
+let CAM  = "";
+
+if(window.location.protocol === "file:"){
+  BASE = "http://192.168.0.25";
+  CAM  = "http://192.168.0.24";
+}else{
+  BASE = "http://192.168.0.25";
+  CAM  = "http://192.168.0.24";
+}
 
 let activa = false;
 
 // ⏰ RELOJ
 function actualizarHora(){
-
   let ahora = new Date();
 
   let h = ahora.getHours();
@@ -197,20 +198,17 @@ function camara(){
   let div = document.getElementById("cam");
 
   if(!activa){
-
     div.innerHTML = '<img src="'+CAM+'" width="100%">';
     activa = true;
 
-    fetch(BASE + "/cam");
-
+    fetch(BASE + "/cam"); // confirmación servo
   }else{
-
     div.innerHTML = "";
     activa = false;
   }
 }
 
-// ⏰ PROGRAMAR (FIX)
+// ⏰ PROGRAMAR
 function programar(){
 
   let horaCompleta = document.getElementById("horaProg").value;
