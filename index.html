@@ -1,193 +1,258 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
-<title>KittyFeeder PRO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Feeder PRO</title>
 
 <style>
-body{
-  background:#0f172a;
-  color:white;
-  font-family:'Segoe UI', sans-serif;
-  text-align:center;
+
+/* 🔥 RESET PARA APP */
+*{
   margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
+/* 🔥 FONDO CON LOGO */
+body{
+  font-family: Arial;
+  color:white;
+  text-align:center;
+
+  background: url("logo.png") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* 🔥 CAPA OSCURA PARA LEGIBILIDAD */
+.overlay{
+  background: rgba(0,0,0,0.7);
+  min-height:100vh;
+  padding:20px;
+}
+
+/* 🔥 TITULO */
 h1{
-  font-size:22px;
-  margin:10px;
+  font-size:28px;
+  margin-bottom:20px;
+  letter-spacing:2px;
 }
 
-.clock{
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
-  margin:10px auto;
-  width:80%;
-  max-width:300px;
-  border:2px solid #22c55e;
-}
+/* 🔥 CARDS */
+.card{
+  background: rgba(30,41,59,0.85);
+  backdrop-filter: blur(10px);
 
-.section{
-  background:#1e293b;
-  margin:15px;
-  padding:15px;
-  border-radius:15px;
-}
+  margin:15px auto;
+  padding:20px;
 
-button, select{
+  border-radius:20px;
   width:95%;
-  padding:14px;
-  margin:6px;
+  max-width:400px;
+
+  box-shadow:0 0 20px rgba(0,255,200,0.2);
+}
+
+/* 🔥 BOTONES */
+button{
+  width:100%;
+  padding:15px;
+  margin-top:10px;
+
   border:none;
+  border-radius:15px;
+
+  background: linear-gradient(135deg,#22c55e,#16a34a);
+  color:white;
+
+  font-size:16px;
+  font-weight:bold;
+
+  cursor:pointer;
+}
+
+/* 🔥 INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+
   border-radius:10px;
+  border:none;
+
   font-size:16px;
 }
 
-button:active{
-  transform: scale(0.97);
+/* 🔥 TEXTO */
+p{
+  margin-top:10px;
+  font-size:16px;
 }
 
-.blue{ background:#06b6d4; }
-.green{ background:#22c55e; }
-.yellow{ background:#facc15; color:black; }
-
-#cam{
-  width:100%;
-  border-radius:10px;
+/* 🔥 CAMARA */
+#cam img{
+  border-radius:15px;
   margin-top:10px;
 }
+
+/* 🔥 ESTADO */
+.estado-ok{
+  color:#22c55e;
+  font-weight:bold;
+}
+
+.estado-wait{
+  color:#facc15;
+}
+
+.estado-off{
+  color:red;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>🤖 KittyFeeder PRO</h1>
+<div class="overlay">
 
-<div class="clock" id="horaActual"></div>
+<h1>🤖 A.G ROBOTICS</h1>
 
-<!-- MANUAL -->
-<div class="section">
-<h2>Modo Manual</h2>
-<button class="blue" onclick="toggleManual()">SERVIR / DETENER</button>
+<!-- ⏰ HORA -->
+<div class="card">
+<h2>⏰ Hora en vivo</h2>
+<p id="hora"></p>
 </div>
 
-<!-- INTELIGENTE -->
-<div class="section">
-<h2>Modo Inteligente</h2>
-
-<button class="blue" onclick="inteligente()">SERVIR AUTOMÁTICO</button>
-
-<select id="peso"></select>
-<select id="comidas"></select>
-
-<button class="yellow" onclick="guardarConfig()">Guardar configuración</button>
-
-<div id="resultado"></div>
+<!-- 🎮 MANUAL -->
+<div class="card">
+<h2>🍽 Alimentar</h2>
+<button onclick="servir()">Servir comida</button>
 </div>
 
-<!-- HORARIO -->
-<div class="section">
-<h2>Programar comida</h2>
-
-<select id="hora"></select>
-<select id="minuto"></select>
-
-<button class="green" onclick="guardarHora()">Guardar horario</button>
-
-<div id="horario"></div>
+<!-- ⏰ PROGRAMAR -->
+<div class="card">
+<h2>⏰ Programar comida</h2>
+<input type="time" id="horaProg">
+<button onclick="programar()">Guardar</button>
+<p id="msg"></p>
 </div>
 
-<!-- CAMARA -->
-<div class="section">
-<h2>Cámara</h2>
+<!-- 📷 CAMARA -->
+<div class="card">
+<h2>📷 Cámara en vivo</h2>
+<button onclick="camara()">Ver cámara</button>
+<div id="cam"></div>
+</div>
 
-<button class="green" onclick="activarCam()">Activar cámara</button>
+<!-- 📡 ESTADO -->
+<div class="card">
+<h2>📡 Estado</h2>
+<p id="estado" class="estado-wait">Esperando...</p>
+</div>
 
-<img id="cam" style="display:none;">
 </div>
 
 <script>
 
-let token = "rENj_cpRbyDzJjYU6ZxKDegh8J0xxbtP";
-let estadoServo = 0;
+const BASE = "http://192.168.0.25";
+const CAM  = "http://192.168.0.24";
 
-// reloj
+let activa = false;
+
+// ⏰ RELOJ
+function actualizarHora(){
+
+  let ahora = new Date();
+
+  let h = ahora.getHours();
+  let m = ahora.getMinutes();
+  let s = ahora.getSeconds();
+
+  let ampm = h >= 12 ? "PM" : "AM";
+
+  h = h % 12;
+  if(h == 0) h = 12;
+
+  document.getElementById("hora").innerText =
+    h + ":" +
+    ("0"+m).slice(-2) + ":" +
+    ("0"+s).slice(-2) + " " + ampm;
+}
+
+setInterval(actualizarHora,1000);
+actualizarHora();
+
+// 🍽 SERVIR
+function servir(){
+  fetch(BASE + "/servo");
+}
+
+// 📷 CAMARA
+function camara(){
+
+  let div = document.getElementById("cam");
+
+  if(!activa){
+
+    div.innerHTML = '<img src="'+CAM+'" width="100%">';
+    activa = true;
+
+    fetch(BASE + "/cam");
+
+  }else{
+
+    div.innerHTML = "";
+    activa = false;
+  }
+}
+
+// ⏰ PROGRAMAR (FIX)
+function programar(){
+
+  let horaCompleta = document.getElementById("horaProg").value;
+
+  if(!horaCompleta){
+    alert("Selecciona una hora");
+    return;
+  }
+
+  let hora = horaCompleta.substring(0,5);
+
+  fetch(BASE + "/sethora?hora=" + hora);
+
+  document.getElementById("msg").innerText =
+    "Programado a: " + hora;
+}
+
+// 📡 SENSOR
 setInterval(()=>{
-  document.getElementById("horaActual").innerHTML =
-    new Date().toLocaleTimeString();
-},1000);
 
-// enviar datos
-function enviar(url){
-  fetch(url).catch(e=>console.log("Error:", e));
-}
+  fetch(BASE + "/")
+  .then(r => r.text())
+  .then(d => {
 
-// MANUAL (toggle)
-function toggleManual(){
-  estadoServo = estadoServo === 0 ? 1 : 0;
+    let estado = document.getElementById("estado");
 
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V0="+estadoServo);
-}
+    if(d.trim()=="1"){
+      estado.innerText = "🐱 Kitty detectada";
+      estado.className = "estado-ok";
+    }else{
+      estado.innerText = "Esperando...";
+      estado.className = "estado-wait";
+    }
 
-// INTELIGENTE
-function inteligente(){
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V2=1");
-}
+  })
+  .catch(()=>{
+    let estado = document.getElementById("estado");
+    estado.innerText = "🔴 Sin conexión";
+    estado.className = "estado-off";
+  });
 
-// CONFIG
-function guardarConfig(){
-  let pesoVal = parseInt(document.getElementById("peso").value);
-  let comidasVal = parseInt(document.getElementById("comidas").value);
-
-  let gramos = pesoVal * 40;
-  let porcion = Math.round(gramos / comidasVal);
-
-  document.getElementById("resultado").innerHTML =
-    "🍽 " + porcion + " g por comida";
-
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V10="+porcion);
-}
-
-// HORARIO
-function guardarHora(){
-  let h = parseInt(document.getElementById("hora").value);
-  let m = parseInt(document.getElementById("minuto").value);
-
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V1="+h);
-  enviar("https://blynk.cloud/external/api/update?token="+token+"&V5="+m);
-
-  document.getElementById("horario").innerHTML =
-    "⏰ " + h + ":" + (m < 10 ? "0"+m : m);
-}
-
-// CAMARA (estable)
-function activarCam(){
-  let cam = document.getElementById("cam");
-
-  cam.src = "http://192.168.0.24"; // CAMBIA SI NECESITAS
-
-  cam.style.display = "block";
-}
-
-// OPCIONES
-for(let i=1;i<=15;i++){
-  document.getElementById("peso").innerHTML += "<option value='"+i+"'>"+i+" kg</option>";
-}
-
-for(let i=1;i<=6;i++){
-  document.getElementById("comidas").innerHTML += "<option value='"+i+"'>"+i+" comidas</option>";
-}
-
-for(let i=0;i<24;i++){
-  document.getElementById("hora").innerHTML += "<option value='"+i+"'>"+i+"</option>";
-}
-
-for(let i=0;i<60;i++){
-  let val = i < 10 ? "0"+i : i;
-  document.getElementById("minuto").innerHTML += "<option value='"+i+"'>"+val+"</option>";
-}
+},1500);
 
 </script>
 
