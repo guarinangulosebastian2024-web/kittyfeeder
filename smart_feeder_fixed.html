@@ -153,22 +153,16 @@ let CAM  = "http://192.168.0.24";
 
 let activa = false;
 let intervaloCam = null;
-let manualInterval = null;
 
 // 🔥 GENERAR OPCIONES (CORREGIDO)
-window.onload = function(){
+let pesoSelect = document.getElementById("peso");
+for(let i=1;i<=20;i++){
+  pesoSelect.innerHTML += <option value="${i}">${i} kg</option>;
+}
 
-  let pesoSelect = document.getElementById("peso");
-  let racionesSelect = document.getElementById("raciones");
-
-  for(let i=1;i<=20;i++){
-    pesoSelect.innerHTML += <option value="${i}">${i} kg</option>;
-  }
-
-  for(let i=1;i<=8;i++){
-    racionesSelect.innerHTML += <option value="${i}">${i} ración(es)</option>;
-  }
-
+let racionesSelect = document.getElementById("raciones");
+for(let i=1;i<=8;i++){
+  racionesSelect.innerHTML += <option value="${i}">${i} ración(es)</option>;
 }
 
 // ⏰ RELOJ
@@ -189,11 +183,12 @@ function actualizarHora(){
     ("0"+m).slice(-2) + ":" +
     ("0"+s).slice(-2) + " " + ampm;
 }
-
 setInterval(actualizarHora,1000);
 actualizarHora();
 
-// 🎮 MANUAL
+// 🎮 MODO MANUAL
+let manualInterval;
+
 function startManual(){
   manualInterval = setInterval(()=>{
     fetch(BASE + "/servo");
@@ -204,7 +199,7 @@ function stopManual(){
   clearInterval(manualInterval);
 }
 
-// 🧠 INTELIGENTE
+// 🧠 MODO INTELIGENTE
 function modoInteligente(){
 
   let peso = parseInt(document.getElementById("peso").value);
@@ -231,14 +226,15 @@ function camara(){
     div.innerHTML = '<img id="stream" width="100%">';
     activa = true;
 
+    fetch(BASE + "/cam");
+
     let img = document.getElementById("stream");
 
-    intervaloCam = setInterval(()=>{
+    intervaloCam = setInterval(() => {
       img.src = CAM + "/?t=" + new Date().getTime();
-    },300);
+    }, 300);
 
   }else{
-
     clearInterval(intervaloCam);
     div.innerHTML = "";
     activa = false;
@@ -248,12 +244,14 @@ function camara(){
 // ⏰ PROGRAMAR
 function programar(){
 
-  let hora = document.getElementById("horaProg").value;
+  let horaCompleta = document.getElementById("horaProg").value;
 
-  if(!hora){
+  if(!horaCompleta){
     alert("Selecciona una hora");
     return;
   }
+
+  let hora = horaCompleta.substring(0,5);
 
   fetch(BASE + "/sethora?hora=" + hora);
 
