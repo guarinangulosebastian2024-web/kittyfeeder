@@ -151,7 +151,7 @@ p{
 
 <script>
 
-// 🔥 DETECCIÓN AUTOMÁTICA (ARREGLADA)
+// 🔥 DETECCIÓN AUTOMÁTICA
 let BASE = "";
 let CAM  = "";
 
@@ -164,6 +164,7 @@ if(window.location.protocol === "file:"){
 }
 
 let activa = false;
+let intervaloCam = null;
 
 // ⏰ RELOJ
 function actualizarHora(){
@@ -192,17 +193,27 @@ function servir(){
   fetch(BASE + "/servo");
 }
 
-// 📷 CAMARA
+// 📷 CAMARA FLUIDA 🔥
 function camara(){
 
   let div = document.getElementById("cam");
 
   if(!activa){
-    div.innerHTML = '<img src="'+CAM+'" width="100%">';
+
+    div.innerHTML = '<img id="stream" width="100%">';
     activa = true;
 
-    fetch(BASE + "/cam"); // confirmación servo
+    fetch(BASE + "/cam"); // movimiento servo
+
+    let img = document.getElementById("stream");
+
+    intervaloCam = setInterval(() => {
+      img.src = CAM + "/?t=" + new Date().getTime();
+    }, 300); // 🔥 puedes probar 200 o 400
+
   }else{
+
+    clearInterval(intervaloCam);
     div.innerHTML = "";
     activa = false;
   }
