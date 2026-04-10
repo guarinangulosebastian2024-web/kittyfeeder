@@ -19,7 +19,15 @@ body{
   font-family: Arial, sans-serif;
   color:white;
   text-align:center;
-  background:#0f172a;
+
+  background: 
+    linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.95)),
+    url("logo.png");
+
+  background-size: 400px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 .overlay{
@@ -72,9 +80,33 @@ input, select{
 .estado-off{color:red;}
 
 #cam img{
+  width:100%;
+  max-width:600px;
+  height:auto;
   border-radius:15px;
   margin-top:10px;
-  max-width:100%;
+}
+
+/* 🐱 Mascotas */
+.mascotas{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.mascotas img{
+  width:90px;
+  height:90px;
+  object-fit:cover;
+  border-radius:50%;
+  border:3px solid #22c55e;
+  box-shadow:0 0 15px rgba(34,197,94,0.5);
+  transition:0.3s;
+}
+
+.mascotas img:hover{
+  transform:scale(1.1);
 }
 </style>
 </head>
@@ -85,10 +117,16 @@ input, select{
 
 <h1>🤖 A.G ROBOTICS</h1>
 
-<!-- ⏰ RELOJ -->
+<!-- ⏰ HORA -->
 <div class="card">
-<h2>⏰ Hora en vivo</h2>
-<p id="hora"></p>
+  <h2>⏰ Hora en vivo</h2>
+  <p id="hora"></p>
+</div>
+
+<!-- 🐱 Mascotas -->
+<div class="mascotas">
+  <img src="kitty.jpg" alt="Kitty">
+  <img src="fiona.jpg" alt="Fiona">
 </div>
 
 <!-- 🎮 MANUAL -->
@@ -138,7 +176,7 @@ input, select{
 
 <script>
 
-// 🔧 CONFIG
+// CONFIG
 let BASE = "http://192.168.0.25";
 let CAM  = "http://192.168.0.24";
 
@@ -146,17 +184,16 @@ let manualInterval;
 let intervaloCam;
 let activa = false;
 
-// ✅ SELECTS
+// SELECTS
 let pesoSelect = document.getElementById("peso");
 for(let i=1;i<=20;i++){
   let option = document.createElement("option");
-option.value = i;
-option.text = i + " kg";
-pesoSelect.appendChild(option);
+  option.value = i;
+  option.text = i + " kg";
+  pesoSelect.appendChild(option);
 }
 
 let racionesSelect = document.getElementById("raciones");
-
 for(let i=1;i<=8;i++){
   let option = document.createElement("option");
   option.value = i;
@@ -164,8 +201,11 @@ for(let i=1;i<=8;i++){
   racionesSelect.appendChild(option);
 }
 
-// ⏰ RELOJ
+// ⏰ RELOJ (CORREGIDO)
 function actualizarHora(){
+  let horaElemento = document.getElementById("hora");
+  if(!horaElemento) return;
+
   let ahora = new Date();
   let h = ahora.getHours();
   let m = ahora.getMinutes();
@@ -174,9 +214,10 @@ function actualizarHora(){
   let ampm = h>=12?"PM":"AM";
   h = h%12; if(h==0) h=12;
 
-  document.getElementById("hora").innerText =
+  horaElemento.innerText =
     h+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
 }
+
 setInterval(actualizarHora,1000);
 actualizarHora();
 
@@ -202,7 +243,6 @@ btnManual.addEventListener("touchstart", (e)=>{
   e.preventDefault();
   iniciarServir();
 });
-
 btnManual.addEventListener("touchend", detenerServir);
 
 // 🧠 INTELIGENTE
@@ -213,14 +253,12 @@ document.getElementById("btnSmart").addEventListener("click", ()=>{
 
   let gramosDia = peso * 30;
   let gramosPorRacion = gramosDia / raciones;
-
   let tiempo = gramosPorRacion / 50;
 
   document.getElementById("calc").innerText =
     "Por ración: " + gramosPorRacion.toFixed(0) + " g";
 
   fetch(BASE+"/smart?time="+tiempo);
-
 });
 
 // 📷 CAMARA
@@ -229,7 +267,6 @@ document.getElementById("btnCam").addEventListener("click", ()=>{
   let div = document.getElementById("cam");
 
   if(!activa){
-
     div.innerHTML = '<img id="stream">';
     activa = true;
 
@@ -244,7 +281,6 @@ document.getElementById("btnCam").addEventListener("click", ()=>{
     div.innerHTML="";
     activa=false;
   }
-
 });
 
 // ⏰ PROGRAMAR
@@ -259,7 +295,6 @@ document.getElementById("btnProg").addEventListener("click", ()=>{
 
   fetch(BASE+"/sethora?hora="+hora);
   document.getElementById("msg").innerText = "Programado a: "+hora;
-
 });
 
 // 📡 SENSOR
