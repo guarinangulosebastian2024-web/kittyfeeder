@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Smart Feeder PRO</title>
+<link rel="icon" href="data:,">
 
 <style>
 *{
@@ -16,15 +16,13 @@
 }
 
 body{
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   color:white;
   text-align:center;
-  background: url("logo.png") no-repeat center center fixed;
-  background-size: cover;
+  background:#0f172a;
 }
 
 .overlay{
-  background: rgba(0,0,0,0.7);
   min-height:100vh;
   padding:20px;
 }
@@ -35,8 +33,7 @@ h1{
 }
 
 .card{
-  background: rgba(30,41,59,0.85);
-  backdrop-filter: blur(10px);
+  background:rgba(30,41,59,0.9);
   margin:15px auto;
   padding:20px;
   border-radius:20px;
@@ -50,10 +47,15 @@ button{
   margin-top:10px;
   border:none;
   border-radius:15px;
-  background: linear-gradient(135deg,#22c55e,#16a34a);
+  background:linear-gradient(135deg,#22c55e,#16a34a);
   color:white;
   font-size:16px;
   font-weight:bold;
+  cursor:pointer;
+}
+
+button:active{
+  transform:scale(0.98);
 }
 
 input, select{
@@ -65,18 +67,15 @@ input, select{
   font-size:16px;
 }
 
-p{
-  margin-top:10px;
-}
+.estado-ok{color:#22c55e;}
+.estado-wait{color:#facc15;}
+.estado-off{color:red;}
 
 #cam img{
   border-radius:15px;
   margin-top:10px;
+  max-width:100%;
 }
-
-.estado-ok{color:#22c55e;}
-.estado-wait{color:#facc15;}
-.estado-off{color:red;}
 </style>
 </head>
 
@@ -86,27 +85,19 @@ p{
 
 <h1>🤖 A.G ROBOTICS</h1>
 
-<!-- ⏰ HORA -->
+<!-- ⏰ RELOJ -->
 <div class="card">
 <h2>⏰ Hora en vivo</h2>
 <p id="hora"></p>
 </div>
 
-<!-- 🎮 MODO MANUAL -->
+<!-- 🎮 MANUAL -->
 <div class="card">
 <h2>🎮 Modo Manual</h2>
-
-<button 
-onmousedown="startManual()" 
-onmouseup="stopManual()"
-ontouchstart="startManual()" 
-ontouchend="stopManual()">
-Servir comida (mantener)
-</button>
-
+<button id="btnManual">Servir comida (mantener)</button>
 </div>
 
-<!-- 🧠 MODO INTELIGENTE -->
+<!-- 🧠 INTELIGENTE -->
 <div class="card">
 <h2>🧠 Modo Inteligente</h2>
 
@@ -116,7 +107,7 @@ Servir comida (mantener)
 <label>Raciones</label>
 <select id="raciones"></select>
 
-<button onclick="modoInteligente()">Servir inteligente</button>
+<button id="btnSmart">Servir inteligente</button>
 
 <p id="calc"></p>
 
@@ -126,14 +117,14 @@ Servir comida (mantener)
 <div class="card">
 <h2>⏰ Programar comida</h2>
 <input type="time" id="horaProg">
-<button onclick="programar()">Guardar</button>
+<button id="btnProg">Guardar</button>
 <p id="msg"></p>
 </div>
 
 <!-- 📷 CAMARA -->
 <div class="card">
 <h2>📷 Cámara</h2>
-<button onclick="camara()">Ver cámara</button>
+<button id="btnCam">Ver cámara</button>
 <div id="cam"></div>
 </div>
 
@@ -147,63 +138,78 @@ Servir comida (mantener)
 
 <script>
 
-// 🔥 CONFIG
+// 🔧 CONFIG
 let BASE = "http://192.168.0.25";
 let CAM  = "http://192.168.0.24";
 
+let manualInterval;
+let intervaloCam;
 let activa = false;
-let intervaloCam = null;
 
-// 🔥 GENERAR OPCIONES (CORREGIDO)
+// ✅ SELECTS
 let pesoSelect = document.getElementById("peso");
 for(let i=1;i<=20;i++){
-  pesoSelect.innerHTML += <option value="${i}">${i} kg</option>;
+  let option = document.createElement("option");
+option.value = i;
+option.text = i + " kg";
+pesoSelect.appendChild(option);
 }
 
 let racionesSelect = document.getElementById("raciones");
+
 for(let i=1;i<=8;i++){
-  racionesSelect.innerHTML += <option value="${i}">${i} ración(es)</option>;
+  let option = document.createElement("option");
+  option.value = i;
+  option.text = i + " ración(es)";
+  racionesSelect.appendChild(option);
 }
 
 // ⏰ RELOJ
 function actualizarHora(){
   let ahora = new Date();
-
   let h = ahora.getHours();
   let m = ahora.getMinutes();
   let s = ahora.getSeconds();
 
-  let ampm = h >= 12 ? "PM" : "AM";
-
-  h = h % 12;
-  if(h == 0) h = 12;
+  let ampm = h>=12?"PM":"AM";
+  h = h%12; if(h==0) h=12;
 
   document.getElementById("hora").innerText =
-    h + ":" +
-    ("0"+m).slice(-2) + ":" +
-    ("0"+s).slice(-2) + " " + ampm;
+    h+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
 }
 setInterval(actualizarHora,1000);
 actualizarHora();
 
-// 🎮 MODO MANUAL
-let manualInterval;
+// 🎮 MANUAL
+let btnManual = document.getElementById("btnManual");
 
-function startManual(){
+function iniciarServir(){
+  fetch(BASE+"/servo");
   manualInterval = setInterval(()=>{
-    fetch(BASE + "/servo");
-  }, 300);
+    fetch(BASE+"/servo");
+  },300);
 }
 
-function stopManual(){
+function detenerServir(){
   clearInterval(manualInterval);
 }
 
-// 🧠 MODO INTELIGENTE
-function modoInteligente(){
+btnManual.addEventListener("mousedown", iniciarServir);
+btnManual.addEventListener("mouseup", detenerServir);
+btnManual.addEventListener("mouseleave", detenerServir);
 
-  let peso = parseInt(document.getElementById("peso").value);
-  let raciones = parseInt(document.getElementById("raciones").value);
+btnManual.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  iniciarServir();
+});
+
+btnManual.addEventListener("touchend", detenerServir);
+
+// 🧠 INTELIGENTE
+document.getElementById("btnSmart").addEventListener("click", ()=>{
+
+  let peso = parseInt(pesoSelect.value);
+  let raciones = parseInt(racionesSelect.value);
 
   let gramosDia = peso * 30;
   let gramosPorRacion = gramosDia / raciones;
@@ -213,74 +219,71 @@ function modoInteligente(){
   document.getElementById("calc").innerText =
     "Por ración: " + gramosPorRacion.toFixed(0) + " g";
 
-  fetch(BASE + "/smart?time=" + tiempo);
-}
+  fetch(BASE+"/smart?time="+tiempo);
+
+});
 
 // 📷 CAMARA
-function camara(){
+document.getElementById("btnCam").addEventListener("click", ()=>{
 
   let div = document.getElementById("cam");
 
   if(!activa){
 
-    div.innerHTML = '<img id="stream" width="100%">';
+    div.innerHTML = '<img id="stream">';
     activa = true;
-
-    fetch(BASE + "/cam");
 
     let img = document.getElementById("stream");
 
-    intervaloCam = setInterval(() => {
+    intervaloCam = setInterval(()=>{
       img.src = CAM + "/?t=" + new Date().getTime();
-    }, 300);
+    },300);
 
   }else{
     clearInterval(intervaloCam);
-    div.innerHTML = "";
-    activa = false;
+    div.innerHTML="";
+    activa=false;
   }
-}
+
+});
 
 // ⏰ PROGRAMAR
-function programar(){
+document.getElementById("btnProg").addEventListener("click", ()=>{
 
-  let horaCompleta = document.getElementById("horaProg").value;
+  let hora = document.getElementById("horaProg").value;
 
-  if(!horaCompleta){
+  if(!hora){
     alert("Selecciona una hora");
     return;
   }
 
-  let hora = horaCompleta.substring(0,5);
+  fetch(BASE+"/sethora?hora="+hora);
+  document.getElementById("msg").innerText = "Programado a: "+hora;
 
-  fetch(BASE + "/sethora?hora=" + hora);
-
-  document.getElementById("msg").innerText =
-    "Programado a: " + hora;
-}
+});
 
 // 📡 SENSOR
 setInterval(()=>{
 
-  fetch(BASE + "/")
-  .then(r => r.text())
-  .then(d => {
+  fetch(BASE+"/")
+  .then(r=>r.text())
+  .then(d=>{
 
-    let estado = document.getElementById("estado");
+    let estado=document.getElementById("estado");
 
     if(d.trim()=="1"){
-      estado.innerText = "🐱 Kitty detectada";
-      estado.className = "estado-ok";
+      estado.innerText="🐱 Kitty detectada";
+      estado.className="estado-ok";
     }else{
-      estado.innerText = "Esperando...";
-      estado.className = "estado-wait";
+      estado.innerText="Esperando...";
+      estado.className="estado-wait";
     }
 
   })
   .catch(()=>{
-    let estado = document.getElementById("estado");
-    estado.innerText = "🔴 Sin conexión";
-    estado.className = "estado-off";
+    let estado=document.getElementById("estado");
+    estado.innerText="🔴 Sin conexión";
+    estado.className="estado-off";
   });
 
 },1500);
