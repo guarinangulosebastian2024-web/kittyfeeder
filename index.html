@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Feeder PRO</title>
-<link rel="icon" href="data:,">
 
 <style>
 *{
@@ -15,57 +14,100 @@
   user-select: none;
 }
 
+/* 🌌 FONDO ANIMADO */
 body{
   font-family: Arial, sans-serif;
   color:white;
-  text-align:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 
-  background: 
-    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)),
-    url("logo.png");
-
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background: linear-gradient(270deg, #0f172a, #020617, #1e293b);
+  background-size: 600% 600%;
+  animation: fondoAnimado 12s ease infinite;
 }
 
-.overlay{
-  min-height:100vh;
+@keyframes fondoAnimado{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+/* 📱 CONTENEDOR TIPO APP */
+.app{
+  width:100%;
+  max-width:420px;
   padding:20px;
 }
 
+/* 🧊 TARJETAS GLASS */
+.card{
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(15px);
+  border:1px solid rgba(255,255,255,0.1);
+  margin:15px 0;
+  padding:20px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* TITULOS */
 h1{
-  font-size:28px;
+  text-align:center;
   margin-bottom:20px;
 }
 
-/* TARJETAS */
-.card{
-  background:rgba(30,41,59,0.9);
-  margin:15px auto;
-  padding:20px;
-  border-radius:20px;
-  width:95%;
-  max-width:400px;
-  backdrop-filter: blur(10px);
+h2{
+  margin-bottom:10px;
 }
 
-/* BOTONES */
+/* 🐱 MASCOTAS */
+.mascotas{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  margin-bottom:20px;
+}
+
+.mascotas img{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid #22c55e;
+  box-shadow:0 0 20px #22c55e;
+  transition:0.3s;
+}
+
+.mascotas img:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 30px #22c55e;
+}
+
+/* ✨ BOTONES FUTURISTAS */
 button{
   width:100%;
   padding:15px;
   margin-top:10px;
   border:none;
   border-radius:15px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
+  background: linear-gradient(135deg,#22c55e,#16a34a);
   color:white;
   font-size:16px;
   font-weight:bold;
   cursor:pointer;
+  transition:0.3s;
+  box-shadow:0 0 10px #22c55e;
+}
+
+button:hover{
+  box-shadow:0 0 25px #22c55e;
+  transform:translateY(-2px);
 }
 
 button:active{
-  transform:scale(0.98);
+  transform:scale(0.97);
 }
 
 /* INPUTS */
@@ -76,6 +118,15 @@ input, select{
   border-radius:10px;
   border:none;
   font-size:16px;
+  background:rgba(255,255,255,0.1);
+  color:white;
+}
+
+/* CAMARA */
+#cam img{
+  width:100%;
+  border-radius:15px;
+  margin-top:10px;
 }
 
 /* ESTADOS */
@@ -83,97 +134,49 @@ input, select{
 .estado-wait{color:#facc15;}
 .estado-off{color:red;}
 
-/* CAMARA */
-#cam img{
-  width:100%;
-  max-width:600px;
-  height:auto;
-  border-radius:15px;
-  margin-top:10px;
-}
-
-/* 🐱 MASCOTAS */
-.mascotas{
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  margin-bottom:20px;
-}
-
-.mascotas img{
-  width:100px;
-  height:100px;
-  object-fit:cover;
-  border-radius:50%;
-  border:3px solid #22c55e;
-  box-shadow:0 0 20px rgba(34,197,94,0.6);
-  transition:0.3s;
-}
-
-.mascotas img:hover{
-  transform:scale(1.1);
-}
 </style>
 </head>
 
 <body>
 
-<div class="overlay">
+<div class="app">
 
 <h1>🤖 A.G ROBOTICS</h1>
 
-<!-- 🐱 Mascotas -->
 <div class="mascotas">
-  <img src="kitty.png" alt="Kitty">
-  <img src="fiona.png" alt="Fiona">
+  <img src="kitty.png">
+  <img src="fiona.png">
 </div>
 
-<!-- ⏰ HORA -->
 <div class="card">
-  <h2>⏰ Hora en vivo</h2>
+  <h2>⏰ Hora</h2>
   <p id="hora"></p>
 </div>
 
-<!-- 🎮 MANUAL -->
 <div class="card">
-<h2>🎮 Modo Manual</h2>
-<button id="btnManual">Servir comida (mantener)</button>
+  <h2>🎮 Manual</h2>
+  <button id="btnManual">Servir comida</button>
 </div>
 
-<!-- 🧠 INTELIGENTE -->
 <div class="card">
-<h2>🧠 Modo Inteligente</h2>
+  <h2>🧠 Inteligente</h2>
 
-<label>Peso mascota</label>
-<select id="peso"></select>
+  <select id="peso"></select>
+  <select id="raciones"></select>
 
-<label>Raciones</label>
-<select id="raciones"></select>
-
-<button id="btnSmart">Servir inteligente</button>
-<p id="calc"></p>
-
+  <button id="btnSmart">Servir</button>
+  <p id="calc"></p>
 </div>
 
-<!-- ⏰ PROGRAMAR -->
 <div class="card">
-<h2>⏰ Programar comida</h2>
-<input type="time" id="horaProg">
-<button id="btnProg">Guardar</button>
-<p id="msg"></p>
+  <h2>📷 Cámara</h2>
+  <button id="btnCam">Ver</button>
+  <div id="cam"></div>
 </div>
 
-<!-- 📷 CAMARA -->
 <div class="card">
-<h2>📷 Cámara</h2>
-<button id="btnCam">Ver cámara</button>
-<div id="cam"></div>
-</div>
-
-<!-- 📡 ESTADO -->
-<div class="card">
-<h2>📡 Estado</h2>
-<p id="estado" class="estado-wait">Esperando...</p>
+  <h2>📡 Estado</h2>
+  <p id="estado" class="estado-wait">Esperando...</p>
 </div>
 
 </div>
@@ -188,96 +191,75 @@ let manualInterval;
 let intervaloCam;
 let activa = false;
 
-// SELECT PESO
+// SELECTS
 let pesoSelect = document.getElementById("peso");
 for(let i=1;i<=20;i++){
-  let option = document.createElement("option");
-  option.value = i;
-  option.text = i + " kg";
-  pesoSelect.appendChild(option);
+  let o=document.createElement("option");
+  o.value=i;
+  o.text=i+" kg";
+  pesoSelect.appendChild(o);
 }
 
-// SELECT RACIONES
 let racionesSelect = document.getElementById("raciones");
 for(let i=1;i<=8;i++){
-  let option = document.createElement("option");
-  option.value = i;
-  option.text = i + " ración(es)";
-  racionesSelect.appendChild(option);
+  let o=document.createElement("option");
+  o.value=i;
+  o.text=i+" ración(es)";
+  racionesSelect.appendChild(o);
 }
 
-// ⏰ RELOJ (SIN ERROR)
+// RELOJ
 function actualizarHora(){
-  let el = document.getElementById("hora");
-  if(!el) return;
+  let el=document.getElementById("hora");
+  let d=new Date();
 
-  let ahora = new Date();
-  let h = ahora.getHours();
-  let m = ahora.getMinutes();
-  let s = ahora.getSeconds();
+  let h=d.getHours();
+  let m=d.getMinutes();
+  let s=d.getSeconds();
 
-  let ampm = h>=12?"PM":"AM";
-  h = h%12; if(h==0) h=12;
+  let ampm=h>=12?"PM":"AM";
+  h=h%12; if(h==0) h=12;
 
-  el.innerText =
-    h+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
+  el.innerText=
+  h+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
 }
 setInterval(actualizarHora,1000);
-actualizarHora();
 
-// 🎮 MANUAL
-let btnManual = document.getElementById("btnManual");
+// MANUAL
+let btnManual=document.getElementById("btnManual");
 
-function iniciarServir(){
-  fetch(BASE+"/servo");
-  manualInterval = setInterval(()=>{
-    fetch(BASE+"/servo");
-  },300);
-}
-
-function detenerServir(){
-  clearInterval(manualInterval);
-}
-
-btnManual.addEventListener("mousedown", iniciarServir);
-btnManual.addEventListener("mouseup", detenerServir);
-btnManual.addEventListener("mouseleave", detenerServir);
-
-btnManual.addEventListener("touchstart", (e)=>{
-  e.preventDefault();
-  iniciarServir();
+btnManual.addEventListener("mousedown",()=>{
+  manualInterval=setInterval(()=>fetch(BASE+"/servo"),300);
 });
-btnManual.addEventListener("touchend", detenerServir);
+btnManual.addEventListener("mouseup",()=>clearInterval(manualInterval));
 
-// 🧠 INTELIGENTE
-document.getElementById("btnSmart").addEventListener("click", ()=>{
+// INTELIGENTE
+document.getElementById("btnSmart").onclick=()=>{
 
-  let peso = parseInt(pesoSelect.value);
-  let raciones = parseInt(racionesSelect.value);
+  let peso=parseInt(pesoSelect.value);
+  let r=parseInt(racionesSelect.value);
 
-  let gramosDia = peso * 30;
-  let gramosPorRacion = gramosDia / raciones;
-  let tiempo = gramosPorRacion / 50;
+  let g=(peso*30)/r;
 
-  document.getElementById("calc").innerText =
-    "Por ración: " + gramosPorRacion.toFixed(0) + " g";
+  document.getElementById("calc").innerText=
+  "Por ración: "+g.toFixed(0)+" g";
 
-  fetch(BASE+"/smart?time="+tiempo);
-});
+  fetch(BASE+"/smart?time="+(g/50));
+};
 
-// 📷 CAMARA
-document.getElementById("btnCam").addEventListener("click", ()=>{
+// CAMARA
+document.getElementById("btnCam").onclick=()=>{
 
-  let div = document.getElementById("cam");
+  let div=document.getElementById("cam");
 
   if(!activa){
-    div.innerHTML = '<img id="stream">';
-    activa = true;
+    div.innerHTML='<img id="stream">';
+    activa=true;
 
-    let img = document.getElementById("stream");
+    let img=document.getElementById("stream");
 
-    intervaloCam = setInterval(()=>{
-      img.src = CAM + "/?t=" + new Date().getTime();
+    intervaloCam=setInterval(()=>{
+      img.src=CAM+"/?t="+Date.now();
     },300);
 
   }else{
@@ -285,46 +267,28 @@ document.getElementById("btnCam").addEventListener("click", ()=>{
     div.innerHTML="";
     activa=false;
   }
-});
+};
 
-// ⏰ PROGRAMAR
-document.getElementById("btnProg").addEventListener("click", ()=>{
-
-  let hora = document.getElementById("horaProg").value;
-
-  if(!hora){
-    alert("Selecciona una hora");
-    return;
-  }
-
-  fetch(BASE+"/sethora?hora="+hora);
-  document.getElementById("msg").innerText = "Programado a: "+hora;
-});
-
-// 📡 SENSOR
+// SENSOR
 setInterval(()=>{
-
   fetch(BASE+"/")
   .then(r=>r.text())
   .then(d=>{
-
-    let estado=document.getElementById("estado");
+    let e=document.getElementById("estado");
 
     if(d.trim()=="1"){
-      estado.innerText="🐱 Kitty detectada";
-      estado.className="estado-ok";
+      e.innerText="🐱 Detectado";
+      e.className="estado-ok";
     }else{
-      estado.innerText="Esperando...";
-      estado.className="estado-wait";
+      e.innerText="Esperando...";
+      e.className="estado-wait";
     }
-
   })
   .catch(()=>{
-    let estado=document.getElementById("estado");
-    estado.innerText="🔴 Sin conexión";
-    estado.className="estado-off";
+    let e=document.getElementById("estado");
+    e.innerText="🔴 Sin conexión";
+    e.className="estado-off";
   });
-
 },1500);
 
 </script>
