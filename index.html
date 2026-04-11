@@ -13,7 +13,6 @@
   font-family: Arial, sans-serif;
 }
 
-/* 🔥 FONDO FULL LOGO */
 body{
   color:white;
   text-align:center;
@@ -27,14 +26,12 @@ body{
   background-attachment: fixed;
 }
 
-/* 📱 CONTENEDOR TIPO APP */
 .app{
   max-width:400px;
   margin:auto;
   padding:20px;
 }
 
-/* 💎 CARDS GLASS */
 .card{
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
@@ -44,13 +41,10 @@ body{
   box-shadow:0 0 20px rgba(0,0,0,0.4);
 }
 
-/* 🤖 TITULO */
 h1{
   margin-bottom:20px;
-  font-size:28px;
 }
 
-/* 🐱 MASCOTAS */
 .mascotas{
   display:flex;
   justify-content:center;
@@ -61,52 +55,24 @@ h1{
 .mascotas img{
   width:80px;
   height:80px;
-  object-fit:cover;
   border-radius:50%;
+  object-fit:cover;
   border:3px solid #22c55e;
-
-  box-shadow:
-    0 0 10px rgba(34,197,94,0.6),
-    0 0 20px rgba(34,197,94,0.4);
-
-  transition:0.3s;
+  box-shadow:0 0 15px #22c55e;
 }
 
-.mascotas img:hover{
-  transform:scale(1.15);
-  box-shadow:
-    0 0 25px #22c55e,
-    0 0 50px #22c55e;
-}
-
-/* 🟢 BOTONES */
 button{
   width:100%;
   padding:15px;
   margin-top:10px;
   border:none;
   border-radius:15px;
-  font-size:16px;
   font-weight:bold;
   cursor:pointer;
-
   background: linear-gradient(135deg,#22c55e,#16a34a);
-
-  box-shadow:
-    0 0 10px #22c55e,
-    0 0 20px rgba(34,197,94,0.5);
-
-  transition:0.3s;
+  box-shadow:0 0 15px #22c55e;
 }
 
-button:hover{
-  transform:scale(1.05);
-  box-shadow:
-    0 0 20px #22c55e,
-    0 0 40px #22c55e;
-}
-
-/* INPUTS */
 input, select{
   width:100%;
   padding:12px;
@@ -115,12 +81,15 @@ input, select{
   border:none;
 }
 
-/* 📷 CAMARA */
 #cam img{
   width:100%;
   border-radius:15px;
   margin-top:10px;
 }
+
+.estado-ok{color:#22c55e;}
+.estado-wait{color:#facc15;}
+.estado-off{color:red;}
 </style>
 </head>
 
@@ -130,25 +99,30 @@ input, select{
 
 <h1>🤖 A.G ROBOTICS</h1>
 
-<!-- 🐱 MASCOTAS -->
 <div class="mascotas">
   <img src="kitty.png">
   <img src="fiona.png">
 </div>
 
-<!-- ⏰ HORA -->
+<!-- HORA -->
 <div class="card">
   <h2>⏰ Hora</h2>
   <p id="hora"></p>
 </div>
 
-<!-- 🎮 MANUAL -->
+<!-- SENSOR -->
 <div class="card">
-  <h2>🎮 Manual</h2>
-  <button id="btnManual">Servir comida</button>
+  <h2>📡 Estado</h2>
+  <p id="estado" class="estado-wait">Esperando...</p>
 </div>
 
-<!-- 🧠 INTELIGENTE -->
+<!-- MANUAL -->
+<div class="card">
+  <h2>🎮 Manual</h2>
+  <button id="btnManual">Servir comida (mantener)</button>
+</div>
+
+<!-- INTELIGENTE -->
 <div class="card">
   <h2>🧠 Inteligente</h2>
 
@@ -160,7 +134,7 @@ input, select{
   <p id="calc"></p>
 </div>
 
-<!-- 📷 CAMARA -->
+<!-- CAMARA -->
 <div class="card">
   <h2>📷 Cámara</h2>
   <button id="btnCam">Ver cámara</button>
@@ -195,9 +169,8 @@ for(let i=1;i<=8;i++){
 // RELOJ
 function actualizarHora(){
   let h=document.getElementById("hora");
-  if(!h) return;
-
   let a=new Date();
+
   let hr=a.getHours();
   let m=a.getMinutes();
   let s=a.getSeconds();
@@ -205,10 +178,69 @@ function actualizarHora(){
   let ampm=hr>=12?"PM":"AM";
   hr=hr%12||12;
 
-  h.innerText=
+  h.innerText =
     hr+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
 }
 setInterval(actualizarHora,1000);
+
+// MANUAL (IMPORTANTE)
+let btnManual = document.getElementById("btnManual");
+let intervaloServo;
+
+btnManual.onmousedown=()=>{
+  fetch(BASE+"/servo");
+  intervaloServo=setInterval(()=>{
+    fetch(BASE+"/servo");
+  },300);
+};
+
+btnManual.onmouseup=()=>{
+  clearInterval(intervaloServo);
+};
+
+btnManual.onmouseleave=()=>{
+  clearInterval(intervaloServo);
+};
+
+// INTELIGENTE
+document.getElementById("btnSmart").onclick=()=>{
+
+  let peso=parseInt(pesoSelect.value);
+  let raciones=parseInt(racionesSelect.value);
+
+  let gramos=peso*30;
+  let porcion=gramos/raciones;
+  let tiempo=porcion/50;
+
+  document.getElementById("calc").innerText =
+    "Por ración: "+porcion.toFixed(0)+" g";
+
+  fetch(BASE+"/smart?time="+tiempo);
+};
+
+// SENSOR (🔥 ESTE ERA EL QUE TE FALTABA)
+setInterval(()=>{
+
+  fetch(BASE+"/")
+  .then(r=>r.text())
+  .then(d=>{
+    let estado=document.getElementById("estado");
+
+    if(d.trim()=="1"){
+      estado.innerText="🐱 Mascota detectada";
+      estado.className="estado-ok";
+    }else{
+      estado.innerText="Esperando...";
+      estado.className="estado-wait";
+    }
+  })
+  .catch(()=>{
+    let estado=document.getElementById("estado");
+    estado.innerText="🔴 Sin conexión";
+    estado.className="estado-off";
+  });
+
+},1500);
 
 // CAMARA
 let activa=false;
