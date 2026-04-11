@@ -6,85 +6,51 @@
 <title>Smart Feeder PRO</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: Arial, sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 
 body{
   color:white;
   text-align:center;
-
   background:
     linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
     url("logo.png");
-
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
 }
 
-.app{
-  max-width:400px;
-  margin:auto;
-  padding:20px;
-}
+.app{max-width:400px;margin:auto;padding:20px;}
 
 .card{
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(12px);
   border-radius:20px;
   padding:20px;
   margin:15px 0;
   box-shadow:0 0 20px rgba(0,0,0,0.4);
 }
 
-h1{
-  margin-bottom:20px;
-}
-
 .mascotas{
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  margin:20px 0;
+  display:flex;justify-content:center;gap:20px;margin:20px 0;
 }
 
 .mascotas img{
-  width:80px;
-  height:80px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid #22c55e;
-  box-shadow:0 0 15px #22c55e;
+  width:85px;height:85px;border-radius:50%;
+  object-fit:cover;border:3px solid #22c55e;
+  box-shadow:0 0 20px #22c55e;
 }
 
 button{
-  width:100%;
-  padding:15px;
-  margin-top:10px;
-  border:none;
-  border-radius:15px;
-  font-weight:bold;
-  cursor:pointer;
-  background: linear-gradient(135deg,#22c55e,#16a34a);
+  width:100%;padding:15px;margin-top:10px;
+  border:none;border-radius:15px;font-weight:bold;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
   box-shadow:0 0 15px #22c55e;
+  cursor:pointer;
 }
 
-input, select{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:none;
-}
-
-#cam img{
-  width:100%;
-  border-radius:15px;
-  margin-top:10px;
+input,select{
+  width:100%;padding:12px;margin-top:10px;
+  border-radius:10px;border:none;
 }
 
 .estado-ok{color:#22c55e;}
@@ -110,7 +76,7 @@ input, select{
   <p id="hora"></p>
 </div>
 
-<!-- SENSOR -->
+<!-- ESTADO -->
 <div class="card">
   <h2>📡 Estado</h2>
   <p id="estado" class="estado-wait">Esperando...</p>
@@ -125,13 +91,20 @@ input, select{
 <!-- INTELIGENTE -->
 <div class="card">
   <h2>🧠 Inteligente</h2>
-
   <select id="peso"></select>
   <select id="raciones"></select>
-
   <button id="btnSmart">Servir inteligente</button>
-
   <p id="calc"></p>
+</div>
+
+<!-- PROGRAMAR -->
+<div class="card">
+  <h2>⏰ Programar comida</h2>
+  <input type="time" id="horaProg">
+  <button id="btnProg">Guardar horario</button>
+
+  <!-- 🔥 AQUÍ SIEMPRE SALE -->
+  <p id="proxima">🕒 Próxima comida: --:--</p>
 </div>
 
 <!-- CAMARA -->
@@ -145,89 +118,97 @@ input, select{
 
 <script>
 
-// CONFIG
-let BASE = "http://192.168.0.25";
-let CAM  = "http://192.168.0.24";
+/* AUTO DETECTA */
+let BASE, CAM;
 
-// SELECTS
-let pesoSelect = document.getElementById("peso");
+if(location.hostname==="localhost"||location.hostname==="127.0.0.1"){
+  BASE="http://192.168.0.25";
+  CAM="http://192.168.0.24";
+}else{
+  BASE="https://calendrical-delores-unforensic.ngrok-free.dev";
+  CAM=BASE;
+}
+
+/* SELECTS */
+let peso=document.getElementById("peso");
 for(let i=1;i<=20;i++){
   let o=document.createElement("option");
-  o.value=i;
-  o.text=i+" kg";
-  pesoSelect.appendChild(o);
+  o.value=i;o.text=i+" kg";
+  peso.appendChild(o);
 }
 
-let racionesSelect = document.getElementById("raciones");
+let raciones=document.getElementById("raciones");
 for(let i=1;i<=8;i++){
   let o=document.createElement("option");
-  o.value=i;
-  o.text=i+" ración(es)";
-  racionesSelect.appendChild(o);
+  o.value=i;o.text=i+" ración(es)";
+  raciones.appendChild(o);
 }
 
-// RELOJ
+/* RELOJ */
 function actualizarHora(){
   let h=document.getElementById("hora");
   let a=new Date();
-
-  let hr=a.getHours();
-  let m=a.getMinutes();
-  let s=a.getSeconds();
-
+  let hr=a.getHours(),m=a.getMinutes(),s=a.getSeconds();
   let ampm=hr>=12?"PM":"AM";
   hr=hr%12||12;
-
-  h.innerText =
-    hr+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
+  h.innerText=hr+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
 }
 setInterval(actualizarHora,1000);
 
-// MANUAL (IMPORTANTE)
-let btnManual = document.getElementById("btnManual");
-let intervaloServo;
-
+/* MANUAL */
+let intServo;
 btnManual.onmousedown=()=>{
   fetch(BASE+"/servo");
-  intervaloServo=setInterval(()=>{
-    fetch(BASE+"/servo");
-  },300);
+  intServo=setInterval(()=>fetch(BASE+"/servo"),300);
+};
+btnManual.onmouseup=()=>clearInterval(intServo);
+btnManual.onmouseleave=()=>clearInterval(intServo);
+
+/* INTELIGENTE */
+btnSmart.onclick=()=>{
+  let p=parseInt(peso.value);
+  let r=parseInt(raciones.value);
+
+  let g=p*30;
+  let por=g/r;
+  let t=por/50;
+
+  calc.innerText="Por ración: "+por.toFixed(0)+" g";
+  fetch(BASE+"/smart?time="+t);
 };
 
-btnManual.onmouseup=()=>{
-  clearInterval(intervaloServo);
+/* PROGRAMAR (🔥 CORREGIDO BIEN) */
+let proxima=document.getElementById("proxima");
+
+// cargar guardado
+let guardado=localStorage.getItem("horaComida");
+if(guardado){
+  proxima.innerText="🕒 Próxima comida: "+guardado;
+}
+
+btnProg.onclick=()=>{
+  let hora=horaProg.value;
+
+  if(!hora){
+    alert("Selecciona una hora");
+    return;
+  }
+
+  // guardar local SIEMPRE
+  localStorage.setItem("horaComida",hora);
+  proxima.innerText="🕒 Próxima comida: "+hora;
+
+  // enviar al ESP32 (si existe)
+  fetch(BASE+"/sethora?hora="+hora).catch(()=>{});
 };
 
-btnManual.onmouseleave=()=>{
-  clearInterval(intervaloServo);
-};
-
-// INTELIGENTE
-document.getElementById("btnSmart").onclick=()=>{
-
-  let peso=parseInt(pesoSelect.value);
-  let raciones=parseInt(racionesSelect.value);
-
-  let gramos=peso*30;
-  let porcion=gramos/raciones;
-  let tiempo=porcion/50;
-
-  document.getElementById("calc").innerText =
-    "Por ración: "+porcion.toFixed(0)+" g";
-
-  fetch(BASE+"/smart?time="+tiempo);
-};
-
-// SENSOR (🔥 ESTE ERA EL QUE TE FALTABA)
+/* SENSOR */
 setInterval(()=>{
-
   fetch(BASE+"/")
   .then(r=>r.text())
   .then(d=>{
-    let estado=document.getElementById("estado");
-
     if(d.trim()=="1"){
-      estado.innerText="🐱 Mascota detectada";
+      estado.innerText="🐱 Detectado";
       estado.className="estado-ok";
     }else{
       estado.innerText="Esperando...";
@@ -235,32 +216,22 @@ setInterval(()=>{
     }
   })
   .catch(()=>{
-    let estado=document.getElementById("estado");
     estado.innerText="🔴 Sin conexión";
     estado.className="estado-off";
   });
-
 },1500);
 
-// CAMARA
-let activa=false;
-let intervalo;
-
-document.getElementById("btnCam").onclick=()=>{
-  let div=document.getElementById("cam");
-
+/* CAMARA */
+let activa=false,intCam;
+btnCam.onclick=()=>{
   if(!activa){
-    div.innerHTML='<img id="stream">';
+    cam.innerHTML='<img id="stream">';
     let img=document.getElementById("stream");
-
-    intervalo=setInterval(()=>{
-      img.src=CAM+"/?t="+Date.now();
-    },300);
-
+    intCam=setInterval(()=>img.src=CAM+"/?t="+Date.now(),300);
     activa=true;
   }else{
-    clearInterval(intervalo);
-    div.innerHTML="";
+    clearInterval(intCam);
+    cam.innerHTML="";
     activa=false;
   }
 };
