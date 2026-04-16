@@ -3,122 +3,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Feeder PRO</title>
+<title>Smart Pet Feeder</title>
 
 <style>
 body{
-  margin:0;
-  font-family:Arial;
+  font-family: Arial;
   background:#0f172a;
   color:white;
   text-align:center;
 }
+
 .card{
   background:#1e293b;
   margin:15px;
   padding:20px;
-  border-radius:20px;
-}
-button{
-  width:100%;
-  padding:15px;
-  margin-top:10px;
-  border:none;
   border-radius:15px;
+}
+
+button{
+  padding:15px;
+  width:90%;
+  border:none;
+  border-radius:10px;
   background:#22c55e;
   color:white;
+  font-size:18px;
+  margin-top:10px;
+}
+
+input,select{
+  padding:10px;
+  width:80%;
+  border-radius:10px;
+  border:none;
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🐱 Smart Feeder PRO</h1>
+<h1>🐱 Smart Pet Feeder</h1>
 
+<!-- 🔥 HORA -->
 <div class="card">
-<h3>Hora</h3>
-<p id="hora"></p>
+<h2>Hora en vivo</h2>
+<p id="hora">--:--:--</p>
 </div>
 
+<!-- 🔥 MODO MANUAL -->
 <div class="card">
-<h3>Manual</h3>
-<button id="btn">Servir</button>
+<h2>Modo Manual</h2>
+
+<button 
+onmousedown="manualOn()" 
+onmouseup="manualOff()"
+ontouchstart="manualOn()"
+ontouchend="manualOff()">
+Mantener para servir comida
+</button>
+
 </div>
 
+<!-- 🔥 MODO INTELIGENTE -->
 <div class="card">
-<h3>Peso</h3>
-<input type="range" min="1" max="15" id="peso">
-<p id="pesoVal"></p>
+<h2>Modo Inteligente</h2>
 
-<h3>Comidas</h3>
+<input type="number" id="peso" placeholder="Peso (kg)" min="1" max="20">
+
 <select id="comidas">
-<option>1</option><option>2</option><option>3</option>
-<option>4</option><option>5</option><option>6</option>
-<option>7</option><option>8</option>
+<option value="1">1 comida</option>
+<option value="2">2 comidas</option>
+<option value="3">3 comidas</option>
+<option value="4">4 comidas</option>
+<option value="5">5 comidas</option>
+<option value="6">6 comidas</option>
+<option value="7">7 comidas</option>
 </select>
 
-<button onclick="guardar()">Guardar</button>
+<button onclick="guardarConfig()">Guardar configuración</button>
+
 </div>
 
+<!-- 🔥 PROGRAMAR -->
 <div class="card">
-<h3>Estado</h3>
-<p id="estado"></p>
+<h2>Programar comida</h2>
+
+<input type="time" id="horaProg">
+
+<button onclick="programar()">Programar</button>
+
 </div>
 
+<!-- 🔥 ESTADO -->
 <div class="card">
-<h3>Historial</h3>
-<div id="historial"></div>
+<h2>Estado</h2>
+<p id="estado">Cargando...</p>
 </div>
 
 <script>
 
-let BASE = "http://192.168.0.25";
+// 🔥 CAMBIA SOLO SI CAMBIA TU IP
+const IP = "192.168.0.20";
 
-// RELOJ
+// ===== HORA =====
 setInterval(()=>{
-let d=new Date();
-document.getElementById("hora").innerText=d.toLocaleTimeString();
+  let now = new Date();
+
+  let h = now.getHours();
+  let m = now.getMinutes();
+  let s = now.getSeconds();
+
+  let ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  if(h == 0) h = 12;
+
+  document.getElementById("hora").innerText =
+    ${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')} ${ampm};
 },1000);
 
-// MANUAL
-let btn=document.getElementById("btn");
-
-btn.onmousedown=()=>fetch(BASE+"/manual?state=1");
-btn.onmouseup=()=>fetch(BASE+"/manual?state=0");
-
-// GUARDAR
-function guardar(){
-let p=document.getElementById("peso").value;
-let c=document.getElementById("comidas").value;
-
-fetch(BASE+"/config?peso="+p+"&comidas="+c+"&modo=auto");
+// ===== MANUAL =====
+function manualOn(){
+  fetch(http://${IP}/manual?state=1);
 }
 
-// SENSOR
+function manualOff(){
+  fetch(http://${IP}/manual?state=0);
+}
+
+// ===== CONFIG =====
+function guardarConfig(){
+
+  let p = document.getElementById("peso").value;
+  let c = document.getElementById("comidas").value;
+
+  fetch(http://${IP}/config?peso=${p}&comidas=${c});
+
+  alert("Configuración guardada");
+}
+
+// ===== PROGRAMAR =====
+function programar(){
+
+  let h = document.getElementById("horaProg").value;
+
+  fetch(http://${IP}/sethora?hora=${h});
+
+  alert("Comida programada");
+}
+
+// ===== SENSOR =====
 setInterval(()=>{
-fetch(BASE+"/")
-.then(r=>r.text())
-.then(d=>{
-document.getElementById("estado").innerText =
-(d=="1")?"🐱 Detectado":"Esperando";
-});
+  fetch(http://${IP}/)
+  .then(r=>r.text())
+  .then(d=>{
+    document.getElementById("estado").innerText =
+      (d=="1") ? "🐱 Kitty detectada" : "Esperando...";
+  });
 },1000);
-
-// HISTORIAL
-function cargarHistorial(){
-fetch("https://smart-feeder-kitty-default-rtdb.firebaseio.com/historial.json")
-.then(r=>r.json())
-.then(data=>{
-let div=document.getElementById("historial");
-div.innerHTML="";
-for(let k in data){
-let p=document.createElement("p");
-p.innerText=data[k];
-div.appendChild(p);
-}
-});
-}
-setInterval(cargarHistorial,3000);
 
 </script>
 
