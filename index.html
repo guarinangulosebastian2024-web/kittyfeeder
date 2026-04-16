@@ -5,154 +5,189 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Feeder PRO</title>
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
+<style>
 body{
+  font-family:Arial;
+  background:#0f172a;
   color:white;
   text-align:center;
-  background:
-    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
-    url("logo.png");
-  background-size:cover;
-  background-position:center;
-  background-attachment:fixed;
 }
 
-.app{max-width:400px;margin:auto;padding:20px;}
-
 .card{
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(12px);
-  border-radius:20px;
+  background:#1e293b;
+  margin:15px auto;
   padding:20px;
-  margin:15px 0;
-  box-shadow:0 0 20px rgba(0,0,0,0.4);
+  border-radius:20px;
+  width:90%;
+  max-width:400px;
 }
 
 button{
-  width:100%;padding:15px;margin-top:10px;
-  border:none;border-radius:15px;font-weight:bold;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  cursor:pointer;
+  width:100%;
+  padding:15px;
+  margin-top:10px;
+  border:none;
+  border-radius:15px;
+  background:#22c55e;
+  color:white;
+  font-weight:bold;
 }
 
-input,select{
-  width:100%;padding:12px;margin-top:10px;
-  border-radius:10px;border:none;
+select,input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:none;
 }
 
 .estado-ok{color:#22c55e;}
 .estado-wait{color:#facc15;}
 .estado-off{color:red;}
-
-#cam img{
-  width:100%;
-  border-radius:15px;
-  margin-top:10px;
-}
 </style>
 </head>
 
 <body>
 
-<div class="app">
-
 <h1>🤖 A.G ROBOTICS</h1>
 
+<!-- ESTADO -->
 <div class="card">
-  <h2>⏰ Hora</h2>
-  <p id="hora"></p>
+<h2>Estado</h2>
+<p id="estado" class="estado-wait">Esperando...</p>
 </div>
 
+<!-- MANUAL -->
 <div class="card">
-  <h2>📡 Estado</h2>
-  <p id="estado" class="estado-wait">Esperando...</p>
+<h2>Manual</h2>
+<button id="btnManual">Mantener para servir</button>
 </div>
 
+<!-- INTELIGENTE -->
 <div class="card">
-  <h2>🎮 Manual</h2>
-  <button id="btnManual">Servir comida</button>
+<h2>Modo Inteligente</h2>
+
+<select id="peso"></select>
+<select id="raciones"></select>
+
+<button onclick="guardarInteligente()">Guardar</button>
+
+<p id="info"></p>
 </div>
 
+<!-- PROGRAMAR -->
 <div class="card">
-  <h2>📷 Cámara</h2>
-  <button id="btnCam">Ver cámara</button>
-  <div id="cam"></div>
+<h2>Programar comida</h2>
+
+<input type="time" id="hora">
+
+<button onclick="guardarHora()">Guardar horario</button>
+
+<p id="proxima">--:--</p>
 </div>
 
+<!-- CAMARA -->
+<div class="card">
+<h2>Cámara</h2>
+<button onclick="toggleCam()">Ver cámara</button>
+<div id="cam"></div>
 </div>
 
 <script>
 
-// ✅ IPS CORRECTAS
-let BASE = "http://192.168.0.20"; // ESP32 servo
-let CAM  = "http://192.168.0.21"; // ESP32-CAM
-
-// RELOJ
-function actualizarHora(){
-  let a=new Date();
-  let hr=a.getHours(),m=a.getMinutes(),s=a.getSeconds();
-  let ampm=hr>=12?"PM":"AM";
-  hr=hr%12||12;
-  document.getElementById("hora").innerText=
-  hr+":"+("0"+m).slice(-2)+":"+("0"+s).slice(-2)+" "+ampm;
-}
-setInterval(actualizarHora,1000);
-
-// SERVIR
-document.getElementById("btnManual").onclick=()=>{
-  fetch(BASE+"/servo");
+// 🔥 CONFIG FIREBASE
+const firebaseConfig = {
+  databaseURL: "https://smart-feeder-kitty-default-rtdb.firebaseio.com"
 };
 
-// SENSOR
-setInterval(()=>{
-  fetch(BASE+"/")
-  .then(r=>r.text())
-  .then(d=>{
-    let estado=document.getElementById("estado");
-    if(d.trim()=="1"){
-      estado.innerText="🐱 Detectado";
-      estado.className="estado-ok";
-    }else{
-      estado.innerText="Esperando...";
-      estado.className="estado-wait";
-    }
-  })
-  .catch(()=>{
-    let estado=document.getElementById("estado");
-    estado.innerText="🔴 Sin conexión";
-    estado.className="estado-off";
-  });
-},1500);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// 🎥 CAMARA (CORREGIDA)
+// 🔥 SELECTS
+for(let i=1;i<=15;i++){
+  peso.innerHTML += <option value="${i}">${i} kg</option>;
+}
+
+for(let i=1;i<=8;i++){
+  raciones.innerHTML += <option value="${i}">${i} comida(s)</option>;
+}
+
+// 🔥 MANUAL (MANTENER PRESIONADO)
+let btn = document.getElementById("btnManual");
+
+btn.onmousedown = () => db.ref("manual").set(1);
+btn.onmouseup = () => db.ref("manual").set(0);
+btn.onmouseleave = () => db.ref("manual").set(0);
+
+// 🔥 MODO INTELIGENTE
+function guardarInteligente(){
+
+  let p = parseInt(peso.value);
+  let r = parseInt(raciones.value);
+
+  let gramosDia = p * 30;
+  let porcion = gramosDia / r;
+
+  let tiempo = porcion / 50;
+
+  document.getElementById("info").innerText =
+  "Por comida: " + porcion.toFixed(0) + " g";
+
+  db.ref("modo").set("inteligente");
+  db.ref("tiempo").set(tiempo);
+}
+
+// 🔥 PROGRAMAR
+function guardarHora(){
+  let h = document.getElementById("hora").value;
+
+  if(!h){
+    alert("Selecciona hora");
+    return;
+  }
+
+  db.ref("hora").set(h);
+  document.getElementById("proxima").innerText = "Próxima: " + h;
+}
+
+// 🔥 SENSOR TIEMPO REAL
+db.ref("sensor").on("value", snap=>{
+  let estado = document.getElementById("estado");
+
+  if(snap.val() == 1){
+    estado.innerText = "🐱 Kitty detectada";
+    estado.className = "estado-ok";
+  }else{
+    estado.innerText = "Esperando...";
+    estado.className = "estado-wait";
+  }
+});
+
+// 🔥 CAMARA
 let activa=false;
-let intervaloCam;
+let intervalo;
 
-document.getElementById("btnCam").onclick=()=>{
-
-  let camDiv=document.getElementById("cam");
+function toggleCam(){
+  let div = document.getElementById("cam");
 
   if(!activa){
+    div.innerHTML = '<img id="img" width="100%">';
+    let img = document.getElementById("img");
 
-    camDiv.innerHTML='<img id="stream">';
-    let img=document.getElementById("stream");
+    intervalo = setInterval(()=>{
+      img.src = "http://192.168.0.21/?t=" + new Date().getTime();
+    }, 500);
 
-    intervaloCam=setInterval(()=>{
-      img.src = CAM + "/?t=" + new Date().getTime();
-    }, 400); // 🔥 más estable
-
-    activa=true;
-
+    activa = true;
   }else{
-
-    clearInterval(intervaloCam);
-    camDiv.innerHTML="";
-    activa=false;
-
+    clearInterval(intervalo);
+    div.innerHTML = "";
+    activa = false;
   }
-};
+}
 
 </script>
 
