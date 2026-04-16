@@ -102,8 +102,6 @@ input,select{
   <h2>⏰ Programar comida</h2>
   <input type="time" id="horaProg">
   <button id="btnProg">Guardar horario</button>
-
-  <!-- 🔥 AQUÍ SIEMPRE SALE -->
   <p id="proxima">🕒 Próxima comida: --:--</p>
 </div>
 
@@ -118,16 +116,9 @@ input,select{
 
 <script>
 
-/* AUTO DETECTA */
-let BASE, CAM;
-
-if(location.hostname==="localhost"||location.hostname==="127.0.0.1"){
-  BASE="http://192.168.0.25";
-  CAM="http://192.168.0.24";
-}else{
-  BASE="https://calendrical-delores-unforensic.ngrok-free.dev";
-  CAM=BASE;
-}
+/* 🔥 IP FIJA CORREGIDA */
+let BASE = "http://192.168.0.20";
+let CAM  = "http://192.168.0.20";
 
 /* SELECTS */
 let peso=document.getElementById("peso");
@@ -156,15 +147,21 @@ function actualizarHora(){
 setInterval(actualizarHora,1000);
 
 /* MANUAL */
+let btnManual = document.getElementById("btnManual");
 let intServo;
+
 btnManual.onmousedown=()=>{
   fetch(BASE+"/servo");
   intServo=setInterval(()=>fetch(BASE+"/servo"),300);
 };
+
 btnManual.onmouseup=()=>clearInterval(intServo);
 btnManual.onmouseleave=()=>clearInterval(intServo);
 
 /* INTELIGENTE */
+let btnSmart = document.getElementById("btnSmart");
+let calc = document.getElementById("calc");
+
 btnSmart.onclick=()=>{
   let p=parseInt(peso.value);
   let r=parseInt(raciones.value);
@@ -177,10 +174,11 @@ btnSmart.onclick=()=>{
   fetch(BASE+"/smart?time="+t);
 };
 
-/* PROGRAMAR (🔥 CORREGIDO BIEN) */
+/* PROGRAMAR */
+let btnProg = document.getElementById("btnProg");
+let horaProg = document.getElementById("horaProg");
 let proxima=document.getElementById("proxima");
 
-// cargar guardado
 let guardado=localStorage.getItem("horaComida");
 if(guardado){
   proxima.innerText="🕒 Próxima comida: "+guardado;
@@ -194,15 +192,15 @@ btnProg.onclick=()=>{
     return;
   }
 
-  // guardar local SIEMPRE
   localStorage.setItem("horaComida",hora);
   proxima.innerText="🕒 Próxima comida: "+hora;
 
-  // enviar al ESP32 (si existe)
   fetch(BASE+"/sethora?hora="+hora).catch(()=>{});
 };
 
 /* SENSOR */
+let estado = document.getElementById("estado");
+
 setInterval(()=>{
   fetch(BASE+"/")
   .then(r=>r.text())
@@ -222,12 +220,20 @@ setInterval(()=>{
 },1500);
 
 /* CAMARA */
+let btnCam = document.getElementById("btnCam");
+let cam = document.getElementById("cam");
+
 let activa=false,intCam;
+
 btnCam.onclick=()=>{
   if(!activa){
     cam.innerHTML='<img id="stream">';
     let img=document.getElementById("stream");
-    intCam=setInterval(()=>img.src=CAM+"/?t="+Date.now(),300);
+
+    intCam=setInterval(()=>{
+      img.src=CAM+"/?t="+Date.now();
+    },300);
+
     activa=true;
   }else{
     clearInterval(intCam);
