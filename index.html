@@ -1,201 +1,124 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Feeder PRO</title>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <style>
-
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
-
 body{
-background:#0f172a;
-color:white;
-text-align:center;
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  text-align:center;
 }
-
-.app{
-max-width:400px;
-margin:auto;
-padding:20px;
-}
-
 .card{
-background:#1e293b;
-padding:20px;
-margin:15px 0;
-border-radius:15px;
-box-shadow:0 0 15px rgba(0,255,200,0.2);
+  background:#1e293b;
+  margin:15px;
+  padding:20px;
+  border-radius:20px;
 }
-
 button{
-width:100%;
-padding:15px;
-margin-top:10px;
-border:none;
-border-radius:10px;
-background:#22c55e;
-color:white;
-font-weight:bold;
-font-size:16px;
-cursor:pointer;
+  width:100%;
+  padding:15px;
+  margin-top:10px;
+  border:none;
+  border-radius:15px;
+  background:#22c55e;
+  color:white;
 }
-
-select,input{
-width:100%;
-padding:10px;
-margin-top:10px;
-border-radius:10px;
-border:none;
-font-size:16px;
-}
-
-.estado-ok{color:#22c55e;}
-.estado-wait{color:#facc15;}
-.estado-off{color:red;}
-
 </style>
 </head>
 
 <body>
 
-<div class="app">
+<h1>🐱 Smart Feeder PRO</h1>
 
-<h1>🤖 Smart Feeder PRO</h1>
-
-<!-- MANUAL -->
 <div class="card">
-<h2>🎮 Manual</h2>
-<button id="btnManual">Mantener presionado</button>
+<h3>Hora</h3>
+<p id="hora"></p>
 </div>
 
-<!-- INTELIGENTE -->
 <div class="card">
-<h2>🧠 Inteligente</h2>
-
-<select id="peso"></select>
-<select id="raciones"></select>
-
-<button onclick="guardarInteligente()">Guardar</button>
-
-<p id="info"></p>
+<h3>Manual</h3>
+<button id="btn">Servir</button>
 </div>
 
-<!-- PROGRAMAR -->
 <div class="card">
-<h2>⏰ Programar comida</h2>
+<h3>Peso</h3>
+<input type="range" min="1" max="15" id="peso">
+<p id="pesoVal"></p>
 
-<input type="time" id="hora">
+<h3>Comidas</h3>
+<select id="comidas">
+<option>1</option><option>2</option><option>3</option>
+<option>4</option><option>5</option><option>6</option>
+<option>7</option><option>8</option>
+</select>
 
-<button onclick="guardarHora()">Guardar horario</button>
-
-<p id="msg"></p>
+<button onclick="guardar()">Guardar</button>
 </div>
 
-<!-- ESTADO -->
 <div class="card">
-<h2>📡 Estado</h2>
-<p id="estado" class="estado-wait">Esperando...</p>
+<h3>Estado</h3>
+<p id="estado"></p>
 </div>
 
+<div class="card">
+<h3>Historial</h3>
+<div id="historial"></div>
 </div>
 
 <script>
 
-// 🔥 CONFIG FIREBASE (TU PROYECTO)
-const firebaseConfig = {
-databaseURL: "https://smart-feeder-kitty-default-rtdb.firebaseio.com"
-};
+let BASE = "http://192.168.0.25";
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// RELOJ
+setInterval(()=>{
+let d=new Date();
+document.getElementById("hora").innerText=d.toLocaleTimeString();
+},1000);
 
+// MANUAL
+let btn=document.getElementById("btn");
 
-// 🔥 SELECT PESO
-let peso = document.getElementById("peso");
-for(let i=1;i<=15;i++){
-let o=document.createElement("option");
-o.value=i;
-o.text=i+" kg";
-peso.appendChild(o);
+btn.onmousedown=()=>fetch(BASE+"/manual?state=1");
+btn.onmouseup=()=>fetch(BASE+"/manual?state=0");
+
+// GUARDAR
+function guardar(){
+let p=document.getElementById("peso").value;
+let c=document.getElementById("comidas").value;
+
+fetch(BASE+"/config?peso="+p+"&comidas="+c+"&modo=auto");
 }
 
-// 🔥 SELECT RACIONES
-let raciones = document.getElementById("raciones");
-for(let i=1;i<=8;i++){
-let o=document.createElement("option");
-o.value=i;
-o.text=i+" comidas";
-raciones.appendChild(o);
-}
-
-
-// 🔥 MANUAL (PRESIONAR Y SOLTAR)
-let btn = document.getElementById("btnManual");
-
-btn.onmousedown = ()=> db.ref("manual").set(1);
-btn.onmouseup   = ()=> db.ref("manual").set(0);
-btn.onmouseleave= ()=> db.ref("manual").set(0);
-
-
-// 🔥 MODO INTELIGENTE
-function guardarInteligente(){
-
-let p = parseInt(peso.value);
-let r = parseInt(raciones.value);
-
-// cálculo realista
-let total = p * 30;
-let porcion = total / r;
-let tiempo = porcion / 50;
-
-document.getElementById("info").innerText =
-"Por comida: " + porcion.toFixed(0) + " g";
-
-db.ref("tiempo").set(tiempo);
-db.ref("modo").set("inteligente");
-
-}
-
-
-// 🔥 PROGRAMAR HORA
-function guardarHora(){
-
-let h = document.getElementById("hora").value;
-
-if(!h){
-alert("Selecciona hora");
-return;
-}
-
-db.ref("hora").set(h);
-
-document.getElementById("msg").innerText =
-"Programado a: " + h;
-
-}
-
-
-// 🔥 SENSOR EN TIEMPO REAL
-db.ref("sensor").on("value", snap=>{
-
-let estado = document.getElementById("estado");
-
-if(snap.val()==1){
-estado.innerText="🐱 Kitty detectada";
-estado.className="estado-ok";
-}else{
-estado.innerText="Esperando...";
-estado.className="estado-wait";
-}
-
+// SENSOR
+setInterval(()=>{
+fetch(BASE+"/")
+.then(r=>r.text())
+.then(d=>{
+document.getElementById("estado").innerText =
+(d=="1")?"🐱 Detectado":"Esperando";
 });
+},1000);
+
+// HISTORIAL
+function cargarHistorial(){
+fetch("https://smart-feeder-kitty-default-rtdb.firebaseio.com/historial.json")
+.then(r=>r.json())
+.then(data=>{
+let div=document.getElementById("historial");
+div.innerHTML="";
+for(let k in data){
+let p=document.createElement("p");
+p.innerText=data[k];
+div.appendChild(p);
+}
+});
+}
+setInterval(cargarHistorial,3000);
 
 </script>
 
