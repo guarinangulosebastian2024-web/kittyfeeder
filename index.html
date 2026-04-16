@@ -1,109 +1,53 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Feeder</title>
+    <title>Control de Alimentador</title>
     <style>
-        body {
-            background: #0f172a;
-            color: white;
-            text-align: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        body { background: #1e293b; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .btn {
+            background: #22c55e; border: none; padding: 40px 60px; color: white;
+            font-size: 24px; border-radius: 20px; cursor: pointer; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); touch-action: manipulation;
         }
-
-        h1 {
-            margin-bottom: 30px;
-            font-size: 2.5rem;
-        }
-
-        button {
-            padding: 30px 40px;
-            font-size: 22px;
-            font-weight: bold;
-            border: none;
-            border-radius: 20px;
-            background: #22c55e;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
-            transition: transform 0.1s, background 0.3s;
-            user-select: none; /* Evita que se seleccione el texto al mantener presionado */
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        button:active {
-            background: #16a34a;
-            transform: scale(0.95);
-        }
-
-        .status {
-            margin-top: 20px;
-            color: #94a3b8;
-            font-size: 14px;
-        }
+        .btn:active { background: #16a34a; transform: scale(0.98); }
+        .info { margin-top: 20px; color: #94a3b8; }
     </style>
 </head>
 <body>
 
-    <h1>🐱 Smart Feeder</h1>
-
-    <button id="btnFeed">
-        Mantener para servir comida
-    </button>
-
-    <div id="log" class="status">Listo para servir...</div>
+    <h1>🐱 Control Manual</h1>
+    
+    <button id="btnFeed" class="btn">MANTENER PARA SERVIR</button>
+    
+    <div class="info">Conectado a: <span id="ip">192.168.0.20</span></div>
 
     <script>
-        // Cambia esta IP si llega a cambiar en tu router
-        const IP_ESP32 = "192.168.0.20";
+        const IP = "192.168.0.20";
+        const btn = document.getElementById("btnFeed");
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const btn = document.getElementById("btnFeed");
-            const logElement = document.getElementById("log");
+        // Esta función envía la señal al ESP32
+        function enviarComando(estado) {
+            // mode: 'no-cors' evita el error de seguridad del navegador
+            fetch(http://${IP}/manual?state=${estado}, { mode: 'no-cors' })
+            .then(() => console.log("Enviado: " + estado))
+            .catch(e => console.error("Error:", e));
+        }
 
-            // Función interna para enviar las peticiones
-            const sendCommand = (state) => {
-                const url = http://${IP_ESP32}/manual?state=${state};
-                
-                // Usamos 'no-cors' para que el navegador no bloquee la petición al ESP32
-                fetch(url, { mode: 'no-cors' })
-                .then(() => {
-                    const msg = state === 1 ? "Sirviendo comida..." : "Servidor detenido";
-                    logElement.innerText = msg;
-                    console.log("Comando enviado: " + state);
-                })
-                .catch(err => {
-                    logElement.innerText = "Error de conexión";
-                    console.error("Error:", err);
-                });
-            };
+        // Eventos para PC
+        btn.addEventListener("mousedown", () => enviarComando(1));
+        btn.addEventListener("mouseup", () => enviarComando(0));
+        btn.addEventListener("mouseleave", () => enviarComando(0));
 
-            // --- EVENTOS PARA PC (MOUSE) ---
-            btn.addEventListener("mousedown", () => sendCommand(1));
-            btn.addEventListener("mouseup", () => sendCommand(0));
-            
-            // Seguridad: si el mouse sale del botón mientras presionas, detiene el motor
-            btn.addEventListener("mouseleave", () => sendCommand(0));
-
-            // --- EVENTOS PARA MÓVIL (TOUCH) ---
-            btn.addEventListener("touchstart", (e) => {
-                e.preventDefault(); // Evita menús contextuales y zoom
-                sendCommand(1);
-            });
-
-            btn.addEventListener("touchend", (e) => {
-                e.preventDefault();
-                sendCommand(0);
-            });
+        // Eventos para Celular
+        btn.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            enviarComando(1);
+        });
+        btn.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            enviarComando(0);
         });
     </script>
-
 </body>
 </html>
