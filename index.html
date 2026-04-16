@@ -10,34 +10,17 @@
 body{
   background:#0f172a;
   color:white;
-  font-family:Arial;
   text-align:center;
-}
-
-.card{
-  background:#1e293b;
-  margin:15px;
-  padding:20px;
-  border-radius:15px;
+  font-family:Arial;
 }
 
 button{
-  padding:15px;
-  width:90%;
+  padding:20px;
+  font-size:20px;
   border:none;
   border-radius:10px;
   background:#22c55e;
   color:white;
-  font-size:18px;
-  margin-top:10px;
-}
-
-input,select{
-  padding:10px;
-  width:80%;
-  border-radius:10px;
-  border:none;
-  margin-top:10px;
 }
 </style>
 
@@ -45,128 +28,42 @@ input,select{
 
 <body>
 
-<h1>🐱 Smart Pet Feeder</h1>
+<h1>🐱 Smart Feeder</h1>
 
-<div class="card">
-<h2>Hora en vivo</h2>
-<p id="hora">--:--:--</p>
-</div>
-
-<div class="card">
-<h2>Modo Manual</h2>
-
-<button
-onmousedown="manualOn()"
-onmouseup="manualOff()"
-ontouchstart="manualOn()"
-ontouchend="manualOff()">
+<button id="btnFeed">
 Mantener para servir comida
 </button>
 
-</div>
-
-<div class="card">
-<h2>Modo Inteligente</h2>
-
-<input type="number" id="peso" placeholder="Peso (kg)">
-<select id="comidas">
-<option value="1">1 comida</option>
-<option value="2">2 comidas</option>
-<option value="3">3 comidas</option>
-<option value="4">4 comidas</option>
-<option value="5">5 comidas</option>
-<option value="6">6 comidas</option>
-<option value="7">7 comidas</option>
-</select>
-
-<button onclick="guardarConfig()">Guardar</button>
-
-</div>
-
-<div class="card">
-<h2>Programar comida</h2>
-
-<input type="time" id="horaProg">
-<button onclick="programar()">Programar</button>
-
-</div>
-
-<div class="card">
-<h2>Estado</h2>
-<p id="estado">...</p>
-</div>
-
 <script>
 
-// 🔥 TU IP REAL
 const IP = "192.168.0.20";
 
-// ===== HORA =====
-setInterval(()=>{
-  let now = new Date();
-
-  let h = now.getHours();
-  let m = now.getMinutes();
-  let s = now.getSeconds();
-
-  let ampm = h >= 12 ? "PM" : "AM";
-  h = h % 12;
-  if(h == 0) h = 12;
-
-  document.getElementById("hora").innerText =
-    h + ":" +
-    (m<10?"0":"") + m + ":" +
-    (s<10?"0":"") + s + " " + ampm;
-
-},1000);
-
-// ===== MANUAL =====
+// 🔥 FUNCIONES
 function manualOn(){
   fetch("http://" + IP + "/manual?state=1")
-  .catch(err => console.log(err));
+  .then(()=>console.log("ON"))
+  .catch(err=>console.log(err));
 }
 
 function manualOff(){
   fetch("http://" + IP + "/manual?state=0")
-  .catch(err => console.log(err));
+  .then(()=>console.log("OFF"))
+  .catch(err=>console.log(err));
 }
 
-// ===== CONFIG =====
-function guardarConfig(){
+// 🔥 EVENTOS (ESTO ES LA CLAVE)
+document.addEventListener("DOMContentLoaded", ()=>{
 
-  let p = document.getElementById("peso").value;
-  let c = document.getElementById("comidas").value;
+  const btn = document.getElementById("btnFeed");
 
-  fetch("http://" + IP + "/config?peso=" + p + "&comidas=" + c);
+  btn.addEventListener("mousedown", manualOn);
+  btn.addEventListener("mouseup", manualOff);
 
-}
+  // para celular
+  btn.addEventListener("touchstart", manualOn);
+  btn.addEventListener("touchend", manualOff);
 
-// ===== PROGRAMAR =====
-function programar(){
-
-  let h = document.getElementById("horaProg").value;
-
-  fetch("http://" + IP + "/sethora?hora=" + h);
-
-}
-
-// ===== SENSOR =====
-setInterval(()=>{
-
-  fetch("http://" + IP + "/")
-  .then(res => res.text())
-  .then(data => {
-
-    if(data == "1"){
-      document.getElementById("estado").innerText = "🐱 Kitty detectada";
-    }else{
-      document.getElementById("estado").innerText = "Esperando...";
-    }
-
-  })
-  .catch(err => console.log(err));
-
-},1000);
+});
 
 </script>
 
