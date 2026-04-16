@@ -1,71 +1,109 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Feeder</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
-<title>Smart Feeder</title>
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
 
-<style>
-body{
-  background:#0f172a;
-  color:white;
-  text-align:center;
-  font-family:Arial;
-}
+        button {
+            padding: 30px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px;
+            background: #22c55e;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+            transition: transform 0.1s, background 0.3s;
+            user-select: none; /* Evita que se seleccione el texto al mantener presionado */
+            -webkit-tap-highlight-color: transparent;
+        }
 
-button{
-  padding:20px;
-  font-size:20px;
-  border:none;
-  border-radius:10px;
-  background:#22c55e;
-  color:white;
-}
-</style>
+        button:active {
+            background: #16a34a;
+            transform: scale(0.95);
+        }
 
+        .status {
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+    </style>
 </head>
-
 <body>
 
-<h1>🐱 Smart Feeder</h1>
+    <h1>🐱 Smart Feeder</h1>
 
-<button id="btnFeed">
-Mantener para servir comida
-</button>
+    <button id="btnFeed">
+        Mantener para servir comida
+    </button>
 
-<script>
+    <div id="log" class="status">Listo para servir...</div>
 
-const IP = "192.168.0.20";
+    <script>
+        // Cambia esta IP si llega a cambiar en tu router
+        const IP_ESP32 = "192.168.0.20";
 
-// 🔥 FUNCIONES
-function manualOn(){
-  fetch("http://" + IP + "/manual?state=1")
-  .then(()=>console.log("ON"))
-  .catch(err=>console.log(err));
-}
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("btnFeed");
+            const logElement = document.getElementById("log");
 
-function manualOff(){
-  fetch("http://" + IP + "/manual?state=0")
-  .then(()=>console.log("OFF"))
-  .catch(err=>console.log(err));
-}
+            // Función interna para enviar las peticiones
+            const sendCommand = (state) => {
+                const url = http://${IP_ESP32}/manual?state=${state};
+                
+                // Usamos 'no-cors' para que el navegador no bloquee la petición al ESP32
+                fetch(url, { mode: 'no-cors' })
+                .then(() => {
+                    const msg = state === 1 ? "Sirviendo comida..." : "Servidor detenido";
+                    logElement.innerText = msg;
+                    console.log("Comando enviado: " + state);
+                })
+                .catch(err => {
+                    logElement.innerText = "Error de conexión";
+                    console.error("Error:", err);
+                });
+            };
 
-// 🔥 EVENTOS (ESTO ES LA CLAVE)
-document.addEventListener("DOMContentLoaded", ()=>{
+            // --- EVENTOS PARA PC (MOUSE) ---
+            btn.addEventListener("mousedown", () => sendCommand(1));
+            btn.addEventListener("mouseup", () => sendCommand(0));
+            
+            // Seguridad: si el mouse sale del botón mientras presionas, detiene el motor
+            btn.addEventListener("mouseleave", () => sendCommand(0));
 
-  const btn = document.getElementById("btnFeed");
+            // --- EVENTOS PARA MÓVIL (TOUCH) ---
+            btn.addEventListener("touchstart", (e) => {
+                e.preventDefault(); // Evita menús contextuales y zoom
+                sendCommand(1);
+            });
 
-  btn.addEventListener("mousedown", manualOn);
-  btn.addEventListener("mouseup", manualOff);
-
-  // para celular
-  btn.addEventListener("touchstart", manualOn);
-  btn.addEventListener("touchend", manualOff);
-
-});
-
-</script>
+            btn.addEventListener("touchend", (e) => {
+                e.preventDefault();
+                sendCommand(0);
+            });
+        });
+    </script>
 
 </body>
 </html>
