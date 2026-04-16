@@ -1,74 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Feeder PRO</title>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+
 body{
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-  text-align:center;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+.app{
+max-width:400px;
+margin:auto;
+padding:20px;
 }
 
 .card{
-  background:#1e293b;
-  margin:15px auto;
-  padding:20px;
-  border-radius:20px;
-  width:90%;
-  max-width:400px;
+background:#1e293b;
+padding:20px;
+margin:15px 0;
+border-radius:15px;
+box-shadow:0 0 15px rgba(0,255,200,0.2);
 }
 
 button{
-  width:100%;
-  padding:15px;
-  margin-top:10px;
-  border:none;
-  border-radius:15px;
-  background:#22c55e;
-  color:white;
-  font-weight:bold;
+width:100%;
+padding:15px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#22c55e;
+color:white;
+font-weight:bold;
+font-size:16px;
+cursor:pointer;
 }
 
 select,input{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:none;
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+font-size:16px;
 }
 
 .estado-ok{color:#22c55e;}
 .estado-wait{color:#facc15;}
 .estado-off{color:red;}
+
 </style>
 </head>
 
 <body>
 
-<h1>🤖 A.G ROBOTICS</h1>
+<div class="app">
 
-<!-- ESTADO -->
-<div class="card">
-<h2>Estado</h2>
-<p id="estado" class="estado-wait">Esperando...</p>
-</div>
+<h1>🤖 Smart Feeder PRO</h1>
 
 <!-- MANUAL -->
 <div class="card">
-<h2>Manual</h2>
-<button id="btnManual">Mantener para servir</button>
+<h2>🎮 Manual</h2>
+<button id="btnManual">Mantener presionado</button>
 </div>
 
 <!-- INTELIGENTE -->
 <div class="card">
-<h2>Modo Inteligente</h2>
+<h2>🧠 Inteligente</h2>
 
 <select id="peso"></select>
 <select id="raciones"></select>
@@ -80,114 +89,113 @@ select,input{
 
 <!-- PROGRAMAR -->
 <div class="card">
-<h2>Programar comida</h2>
+<h2>⏰ Programar comida</h2>
 
 <input type="time" id="hora">
 
 <button onclick="guardarHora()">Guardar horario</button>
 
-<p id="proxima">--:--</p>
+<p id="msg"></p>
 </div>
 
-<!-- CAMARA -->
+<!-- ESTADO -->
 <div class="card">
-<h2>Cámara</h2>
-<button onclick="toggleCam()">Ver cámara</button>
-<div id="cam"></div>
+<h2>📡 Estado</h2>
+<p id="estado" class="estado-wait">Esperando...</p>
+</div>
+
 </div>
 
 <script>
 
-// 🔥 CONFIG FIREBASE
+// 🔥 CONFIG FIREBASE (TU PROYECTO)
 const firebaseConfig = {
-  databaseURL: "https://smart-feeder-kitty-default-rtdb.firebaseio.com"
+databaseURL: "https://smart-feeder-kitty-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 🔥 SELECTS
+
+// 🔥 SELECT PESO
+let peso = document.getElementById("peso");
 for(let i=1;i<=15;i++){
-  peso.innerHTML += <option value="${i}">${i} kg</option>;
+let o=document.createElement("option");
+o.value=i;
+o.text=i+" kg";
+peso.appendChild(o);
 }
 
+// 🔥 SELECT RACIONES
+let raciones = document.getElementById("raciones");
 for(let i=1;i<=8;i++){
-  raciones.innerHTML += <option value="${i}">${i} comida(s)</option>;
+let o=document.createElement("option");
+o.value=i;
+o.text=i+" comidas";
+raciones.appendChild(o);
 }
 
-// 🔥 MANUAL (MANTENER PRESIONADO)
+
+// 🔥 MANUAL (PRESIONAR Y SOLTAR)
 let btn = document.getElementById("btnManual");
 
-btn.onmousedown = () => db.ref("manual").set(1);
-btn.onmouseup = () => db.ref("manual").set(0);
-btn.onmouseleave = () => db.ref("manual").set(0);
+btn.onmousedown = ()=> db.ref("manual").set(1);
+btn.onmouseup   = ()=> db.ref("manual").set(0);
+btn.onmouseleave= ()=> db.ref("manual").set(0);
+
 
 // 🔥 MODO INTELIGENTE
 function guardarInteligente(){
 
-  let p = parseInt(peso.value);
-  let r = parseInt(raciones.value);
+let p = parseInt(peso.value);
+let r = parseInt(raciones.value);
 
-  let gramosDia = p * 30;
-  let porcion = gramosDia / r;
+// cálculo realista
+let total = p * 30;
+let porcion = total / r;
+let tiempo = porcion / 50;
 
-  let tiempo = porcion / 50;
+document.getElementById("info").innerText =
+"Por comida: " + porcion.toFixed(0) + " g";
 
-  document.getElementById("info").innerText =
-  "Por comida: " + porcion.toFixed(0) + " g";
+db.ref("tiempo").set(tiempo);
+db.ref("modo").set("inteligente");
 
-  db.ref("modo").set("inteligente");
-  db.ref("tiempo").set(tiempo);
 }
 
-// 🔥 PROGRAMAR
+
+// 🔥 PROGRAMAR HORA
 function guardarHora(){
-  let h = document.getElementById("hora").value;
 
-  if(!h){
-    alert("Selecciona hora");
-    return;
-  }
+let h = document.getElementById("hora").value;
 
-  db.ref("hora").set(h);
-  document.getElementById("proxima").innerText = "Próxima: " + h;
+if(!h){
+alert("Selecciona hora");
+return;
 }
 
-// 🔥 SENSOR TIEMPO REAL
+db.ref("hora").set(h);
+
+document.getElementById("msg").innerText =
+"Programado a: " + h;
+
+}
+
+
+// 🔥 SENSOR EN TIEMPO REAL
 db.ref("sensor").on("value", snap=>{
-  let estado = document.getElementById("estado");
 
-  if(snap.val() == 1){
-    estado.innerText = "🐱 Kitty detectada";
-    estado.className = "estado-ok";
-  }else{
-    estado.innerText = "Esperando...";
-    estado.className = "estado-wait";
-  }
-});
+let estado = document.getElementById("estado");
 
-// 🔥 CAMARA
-let activa=false;
-let intervalo;
-
-function toggleCam(){
-  let div = document.getElementById("cam");
-
-  if(!activa){
-    div.innerHTML = '<img id="img" width="100%">';
-    let img = document.getElementById("img");
-
-    intervalo = setInterval(()=>{
-      img.src = "http://192.168.0.21/?t=" + new Date().getTime();
-    }, 500);
-
-    activa = true;
-  }else{
-    clearInterval(intervalo);
-    div.innerHTML = "";
-    activa = false;
-  }
+if(snap.val()==1){
+estado.innerText="🐱 Kitty detectada";
+estado.className="estado-ok";
+}else{
+estado.innerText="Esperando...";
+estado.className="estado-wait";
 }
+
+});
 
 </script>
 
