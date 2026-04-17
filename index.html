@@ -48,6 +48,8 @@ button{
 <div class="card">
 <button onclick="servir()">Servir</button>
 <button onclick="auto()">AUTO</button>
+<button onclick="modoSeguro()">Modo Seguro 🛡️</button>
+<p id="estadoSeguro">Modo seguro: OFF</p>
 </div>
 
 <div class="card">
@@ -123,6 +125,14 @@ function servir(){
 function auto(){
   fetch("http://" + IP + "/modo=auto");
   lastFeed = Date.now();
+}
+
+// 🔥 MODO SEGURO
+function modoSeguro(){
+  fetch("http://" + IP + "/modo=seguro");
+
+  document.getElementById("estadoSeguro").innerText =
+    "Modo seguro: ACTIVADO 🛡️";
 }
 
 function guardar(){
