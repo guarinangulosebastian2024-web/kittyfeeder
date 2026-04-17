@@ -1,53 +1,182 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Control de Alimentador</title>
-    <style>
-        body { background: #1e293b; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
-        .btn {
-            background: #22c55e; border: none; padding: 40px 60px; color: white;
-            font-size: 24px; border-radius: 20px; cursor: pointer; font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); touch-action: manipulation;
-        }
-        .btn:active { background: #16a34a; transform: scale(0.98); }
-        .info { margin-top: 20px; color: #94a3b8; }
-    </style>
+<meta charset="UTF-8">
+<title>Smart Pet Feeder PRO</title>
+
+<style>
+body{
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  font-family:sans-serif;
+}
+.card{
+  background:#1e293b;
+  margin:15px;
+  padding:20px;
+  border-radius:15px;
+}
+button{
+  padding:15px;
+  width:90%;
+  border:none;
+  border-radius:10px;
+  background:#10b981;
+  color:white;
+  margin-top:10px;
+}
+#camImg{
+  width:100%;
+  max-width:500px;
+  border-radius:15px;
+}
+</style>
 </head>
+
 <body>
 
-    <h1>🐱 Control Manual</h1>
-    
-    <button id="btnFeed" class="btn">MANTENER PARA SERVIR</button>
-    
-    <div class="info">Conectado a: <span id="ip">192.168.0.20</span></div>
+<h1>🐱 Smart Pet Feeder PRO</h1>
 
-    <script>
-        const IP = "192.168.0.20";
-        const btn = document.getElementById("btnFeed");
+<div class="card">
+<h2>Hora</h2>
+<p id="hora">--</p>
+<p id="proxima">--</p>
+<p id="contador">--</p>
+</div>
 
-        // Esta función envía la señal al ESP32
-        function enviarComando(estado) {
-            // mode: 'no-cors' evita el error de seguridad del navegador
-            fetch(http://${IP}/manual?state=${estado}, { mode: 'no-cors' })
-            .then(() => console.log("Enviado: " + estado))
-            .catch(e => console.error("Error:", e));
-        }
+<div class="card">
+<button onclick="servir()">Servir</button>
+<button onclick="auto()">AUTO</button>
+</div>
 
-        // Eventos para PC
-        btn.addEventListener("mousedown", () => enviarComando(1));
-        btn.addEventListener("mouseup", () => enviarComando(0));
-        btn.addEventListener("mouseleave", () => enviarComando(0));
+<div class="card">
+<input id="peso" placeholder="Peso">
+<select id="comidas">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+</select>
+<button onclick="guardar()">Guardar</button>
+</div>
 
-        // Eventos para Celular
-        btn.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            enviarComando(1);
-        });
-        btn.addEventListener("touchend", (e) => {
-            e.preventDefault();
-            enviarComando(0);
-        });
-    </script>
+<div class="card">
+<h2>Programar</h2>
+<input type="time" id="horaProg">
+<button onclick="programar()">Programar</button>
+<p id="programado">Sin programar</p>
+</div>
+
+<div class="card">
+<h2>Sensor</h2>
+<p id="sensor">--</p>
+</div>
+
+<div class="card">
+<h2>Cámara</h2>
+<button onclick="toggleCam()">ON/OFF</button>
+<img id="camImg">
+</div>
+
+<script>
+
+const IP = "192.168.0.20";
+const CAM_IP = "192.168.0.21";
+
+let comidas = 2;
+let lastFeed = Date.now();
+let cam = null;
+
+// RELOJ
+setInterval(function(){
+
+  let now = Date.now();
+  let fecha = new Date();
+
+  document.getElementById("hora").innerText =
+    fecha.toLocaleTimeString();
+
+  let intervalo = 86400000 / comidas;
+  let prox = new Date(lastFeed + intervalo);
+
+  document.getElementById("proxima").innerText =
+    "Próxima: " + prox.toLocaleTimeString();
+
+  let diff = prox - now;
+
+  let s = Math.floor(diff/1000);
+  let h = Math.floor(s/3600);
+  let m = Math.floor((s%3600)/60);
+  let sec = s%60;
+
+  document.getElementById("contador").innerText =
+    "Faltan: " + h + "h " + m + "m " + sec + "s";
+
+},1000);
+
+// FUNCIONES
+function servir(){
+  fetch("http://" + IP + "/manual?state=1");
+  lastFeed = Date.now();
+}
+
+function auto(){
+  fetch("http://" + IP + "/modo=auto");
+  lastFeed = Date.now();
+}
+
+function guardar(){
+
+  let p = document.getElementById("peso").value;
+  let c = document.getElementById("comidas").value;
+
+  comidas = parseInt(c);
+
+  fetch("http://" + IP + "/config?peso=" + p + "&comidas=" + c);
+}
+
+function programar(){
+
+  let valor = document.getElementById("horaProg").value;
+
+  fetch("http://" + IP + "/sethora?hora=" + valor);
+
+  document.getElementById("programado").innerText =
+    "Programado: " + valor;
+}
+
+// SENSOR
+setInterval(function(){
+
+  fetch("http://" + IP + "/")
+  .then(r => r.text())
+  .then(d => {
+    document.getElementById("sensor").innerText =
+      d=="1" ? "🐱 Detectado" : "Esperando...";
+  })
+  .catch(()=>{
+    document.getElementById("sensor").innerText = "❌ Sin conexión";
+  });
+
+},1500);
+
+// CAMARA
+function toggleCam(){
+
+  if(cam){
+    clearInterval(cam);
+    document.getElementById("camImg").src = "";
+    cam = null;
+    return;
+  }
+
+  cam = setInterval(function(){
+    document.getElementById("camImg").src =
+      "http://" + CAM_IP + "?t=" + Date.now();
+  },700);
+}
+
+</script>
+
 </body>
 </html>
